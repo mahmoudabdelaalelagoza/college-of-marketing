@@ -1,7 +1,7 @@
-import { readFileSync, readdirSync } from 'node:fs';
+﻿import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-const roots = ['src', 'index.html'];
+const roots = ['frontend/src', 'frontend/index.html'];
 const suspicious = [
   'kentbusinesscollege.example',
   '/vite.svg',
@@ -71,3 +71,4 @@ function exists(path) {
 function isTextFile(path) {
   return textExtensions.has(path.slice(path.lastIndexOf('.')));
 }
+
