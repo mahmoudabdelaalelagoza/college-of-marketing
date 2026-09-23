@@ -97,7 +97,7 @@ export default function SiteHeader() {
   return (
     <header
       ref={headerRef}
-      className={`sticky top-0 z-50 h-[72px] border-b transition-colors duration-300 ${
+      className={`sticky top-0 z-50 h-[88px] border-b sm:h-[96px] md:h-[104px] lg:h-[112px] transition-colors duration-300 ${
         scrolled
           ? 'border-background-300 bg-background-50/85 backdrop-blur-md'
           : 'border-transparent bg-background-50'
@@ -106,18 +106,18 @@ export default function SiteHeader() {
       <div className="container-wide flex h-full items-center justify-between gap-6">
         <Link
           to="/college-of-marketing"
-          className="flex h-14 shrink-0 items-center"
+          className="flex h-full shrink-0 items-center"
           aria-label="College of Marketing home"
         >
           <img
             src="/brand/college-of-marketing-mark.png"
             alt="College of Marketing"
-            className="h-12 w-12 object-contain sm:hidden"
+            className="h-14 w-14 object-contain sm:hidden"
           />
           <img
             src="/brand/college-of-marketing-logo.png"
             alt="College of Marketing"
-            className="hidden w-[220px] max-w-[34vw] object-contain sm:block lg:w-[260px] xl:w-[300px]"
+            className="hidden w-[180px] max-w-[30vw] object-contain sm:block md:w-[200px] lg:w-[220px] xl:w-[220px]"
           />
         </Link>
 
