@@ -105,7 +105,7 @@ export default function SiteHeader() {
     >
       <div className="container-wide flex h-full items-center justify-between gap-6">
         <Link
-          to="/college-of-marketing"
+          to="/"
           className="flex h-full shrink-0 items-center"
           aria-label="College of Marketing home"
         >

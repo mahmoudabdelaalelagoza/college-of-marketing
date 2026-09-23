@@ -1,5 +1,4 @@
 ﻿import type { RouteObject } from "react-router-dom";
-import { Navigate } from "react-router-dom";
 import NotFound from "../pages/NotFound";
 import CollegeOfMarketing from "../pages/college-of-marketing/page";
 import MarketingExecutiveLevel4 from "../pages/college-of-marketing/marketing-executive-level-4/page";
@@ -17,7 +16,7 @@ import Accessibility from "../pages/accessibility/page";
 const routes: RouteObject[] = [
   {
     path: "/",
-    element: <Navigate to="/college-of-marketing" replace />,
+    element: <CollegeOfMarketing />,
   },
   {
     path: "/college-of-marketing",
@@ -74,4 +73,3 @@ const routes: RouteObject[] = [
 ];
 
 export default routes;
-

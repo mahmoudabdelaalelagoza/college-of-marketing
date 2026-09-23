@@ -1,6 +1,5 @@
-﻿import { Navigate } from 'react-router-dom';
+﻿import CollegeOfMarketing from '../college-of-marketing/page';
 
 export default function Home() {
-  return <Navigate to="/college-of-marketing" replace />;
+  return <CollegeOfMarketing />;
 }
-

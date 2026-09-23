@@ -37,7 +37,7 @@ export default function SiteFooter() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <Link
-              to="/college-of-marketing"
+              to="/"
               className="inline-flex rounded-md border border-accent-400/25 bg-background-50 px-4 py-3 shadow-soft"
               aria-label="College of Marketing home"
             >
@@ -101,4 +101,3 @@ export default function SiteFooter() {
     </footer>
   );
 }
-
