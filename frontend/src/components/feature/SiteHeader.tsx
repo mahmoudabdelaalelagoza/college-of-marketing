@@ -112,12 +112,12 @@ export default function SiteHeader() {
           <img
             src="/brand/college-of-marketing-mark.png"
             alt="College of Marketing"
-            className="h-11 w-11 object-contain sm:hidden"
+            className="h-12 w-12 object-contain sm:hidden"
           />
           <img
             src="/brand/college-of-marketing-logo.png"
             alt="College of Marketing"
-            className="hidden h-12 w-auto object-contain sm:block lg:h-[54px]"
+            className="hidden w-[220px] max-w-[34vw] object-contain sm:block lg:w-[260px] xl:w-[300px]"
           />
         </Link>
 
