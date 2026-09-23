@@ -80,3 +80,216 @@ create table if not exists newsletter_subscriptions (
 
 create index if not exists newsletter_subscriptions_created_at_idx
   on newsletter_subscriptions (created_at desc);
+create table if not exists media_assets (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  url text not null,
+  alt_text text,
+  source_url text,
+  uploaded_by uuid references dashboard_users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists media_assets_created_at_idx on media_assets (created_at desc);
+
+create table if not exists articles (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  slug text not null unique,
+  excerpt text,
+  content text,
+  category text,
+  author text,
+  image_url text,
+  image_alt text,
+  read_minutes integer not null default 3,
+  is_published boolean not null default false,
+  published_at timestamptz,
+  display_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists articles_public_idx on articles (is_published, published_at desc, display_order);
+
+create table if not exists case_studies (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  slug text not null unique,
+  sector text,
+  client_name text,
+  headline text,
+  summary text,
+  challenge text,
+  approach text,
+  outcome text,
+  metrics jsonb not null default '[]'::jsonb,
+  image_url text,
+  image_alt text,
+  is_featured boolean not null default false,
+  is_published boolean not null default false,
+  published_at timestamptz,
+  display_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists case_studies_public_idx on case_studies (is_published, is_featured, display_order);
+
+create table if not exists testimonials (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  programme text,
+  reviewer_type text,
+  photo_url text,
+  review_text text not null,
+  consent boolean not null default false,
+  status text not null default 'pending',
+  is_featured boolean not null default false,
+  display_order integer not null default 0,
+  moderation_notes text,
+  reviewed_by uuid references dashboard_users(id) on delete set null,
+  reviewed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists testimonials_public_idx on testimonials (status, is_featured, display_order);
+
+create table if not exists events (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  slug text not null unique,
+  summary text,
+  description text,
+  image_url text,
+  image_alt text,
+  starts_at timestamptz,
+  ends_at timestamptz,
+  timezone text,
+  location text,
+  organiser text,
+  category text,
+  classifications jsonb not null default '[]'::jsonb,
+  format text,
+  sales_status text,
+  price_label text,
+  cta_label text,
+  cta_url text,
+  source_url text,
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  is_featured boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists events_public_idx on events (is_active, starts_at, display_order);
+
+create table if not exists short_courses (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  title text not null,
+  category text,
+  duration text,
+  format text,
+  owner text,
+  audience text,
+  summary text,
+  focus_list jsonb not null default '[]'::jsonb,
+  detail jsonb not null default '{}'::jsonb,
+  icon text,
+  image_url text,
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists short_courses_public_idx on short_courses (is_active, display_order);
+
+create table if not exists people_profiles (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  initials text,
+  role_title text,
+  affiliation text,
+  specialties jsonb not null default '[]'::jsonb,
+  biography text,
+  image_url text,
+  link_url text,
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists people_profiles_public_idx on people_profiles (is_active, display_order);
+
+create table if not exists partner_logos (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  slug text unique,
+  kind text,
+  description text,
+  icon text,
+  image_url text,
+  link_url text,
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists partner_logos_public_idx on partner_logos (is_active, kind, display_order);
+
+create table if not exists page_content_sections (
+  id uuid primary key default gen_random_uuid(),
+  page_path text not null,
+  section_key text not null,
+  field_key text not null,
+  field_type text not null default 'text',
+  draft_value text,
+  published_value text,
+  is_visible boolean not null default true,
+  version integer not null default 1,
+  updated_by uuid references dashboard_users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (page_path, section_key, field_key)
+);
+
+create table if not exists page_content_versions (
+  id uuid primary key default gen_random_uuid(),
+  page_content_section_id uuid not null references page_content_sections(id) on delete cascade,
+  version integer not null,
+  published_value text,
+  published_by uuid references dashboard_users(id) on delete set null,
+  published_at timestamptz not null default now()
+);
+
+create table if not exists knowledge_sources (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  kind text not null default 'FAQ',
+  reference_path text,
+  content text,
+  import_key text,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists knowledge_sources_active_idx on knowledge_sources (is_active, kind);
+
+create table if not exists site_settings (
+  id uuid primary key default gen_random_uuid(),
+  setting_key text not null unique,
+  setting_value text,
+  setting_type text not null default 'text',
+  is_public boolean not null default false,
+  updated_by uuid references dashboard_users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);

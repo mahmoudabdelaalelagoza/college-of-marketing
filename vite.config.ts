@@ -10,6 +10,8 @@ import dashboardMeHandler from "./backend/api/dashboard/auth/me.js";
 import dashboardLogoutHandler from "./backend/api/dashboard/auth/logout.js";
 import dashboardOverviewHandler from "./backend/api/dashboard/overview.js";
 import dashboardLeadsHandler from "./backend/api/dashboard/leads.js";
+import dashboardCmsHandler from "./backend/api/dashboard/cms.js";
+import publicContentHandler from "./backend/api/public/content.js";
 
 const base = process.env.BASE_PATH || "/";
 const isPreview = process.env.IS_PREVIEW ? true : false;
@@ -49,6 +51,8 @@ function localApiPlugin(): Plugin {
     "/dashboard/auth/logout": dashboardLogoutHandler,
     "/dashboard/overview": dashboardOverviewHandler,
     "/dashboard/leads": dashboardLeadsHandler,
+    "/dashboard/cms": dashboardCmsHandler,
+    "/public/content": publicContentHandler,
   };
 
   return {

@@ -17,6 +17,7 @@ import DashboardLayout from "../pages/dashboard/components/DashboardLayout";
 import DashboardOverview from "../pages/dashboard/page";
 import DashboardLogin from "../pages/dashboard/login/page";
 import DashboardLeads from "../pages/dashboard/leads/page";
+import DashboardContent from "../pages/dashboard/content/page";
 
 const routes: RouteObject[] = [
   {
@@ -90,6 +91,10 @@ const routes: RouteObject[] = [
       {
         path: "leads",
         element: <DashboardLeads />,
+      },
+      {
+        path: "content/:resource",
+        element: <DashboardContent />,
       },
     ],
   },

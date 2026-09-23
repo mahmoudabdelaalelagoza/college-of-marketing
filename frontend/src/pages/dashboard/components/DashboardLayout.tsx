@@ -5,6 +5,7 @@ import { getCurrentUser, logout, type DashboardUser } from '../api';
 const navItems = [
   { label: 'Overview', to: '/dashboard', icon: 'ri-dashboard-line', end: true },
   { label: 'Leads', to: '/dashboard/leads', icon: 'ri-inbox-line' },
+  { label: 'CMS', to: '/dashboard/content/articles', icon: 'ri-database-2-line' },
 ];
 
 export default function DashboardLayout() {
