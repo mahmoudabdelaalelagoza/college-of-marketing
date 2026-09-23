@@ -1,9 +1,25 @@
 ﻿import Button from '@/components/base/Button';
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
+import { usePublicContent } from '@/lib/publicContent';
 import { programmeCourses } from './data';
 
+interface ShortCourseRow {
+  slug: string;
+  title: string;
+  category: string | null;
+  duration: string | null;
+  format: string | null;
+  owner: string | null;
+  audience: string | null;
+  summary: string | null;
+  focus_list: string[] | null;
+  icon: string | null;
+}
+
 export default function CoursesModules() {
+  const { items: shortCourses } = usePublicContent<ShortCourseRow>('short-courses', []);
+
   return (
     <section id="course-modules" className="border-y border-background-300 bg-background-100 py-20 md:py-28">
       <div className="container-wide">
@@ -78,6 +94,47 @@ export default function CoursesModules() {
             </div>
           ))}
         </div>
+
+        {shortCourses.length > 0 && (
+          <div className="mt-16">
+            <Reveal>
+              <div className="max-w-2xl">
+                <Eyebrow tone="maroon">CMS short courses</Eyebrow>
+                <h3 className="mt-5 font-heading text-[clamp(1.7rem,2.6vw,2.4rem)] font-semibold leading-tight">
+                  Standalone courses available after consultation.
+                </h3>
+              </div>
+            </Reveal>
+            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {shortCourses.map((course, index) => (
+                <Reveal key={course.slug || course.title} delay={index * 60}>
+                  <article className="flex h-full flex-col rounded-[16px] border border-background-300 bg-background-50 p-6">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary-100 text-secondary-800">
+                      <i className={`${course.icon || 'ri-stack-line'} text-xl`} />
+                    </span>
+                    <p className="eyebrow mt-5 text-accent-700">{course.category || course.format || 'Short course'}</p>
+                    <h4 className="mt-3 font-heading text-xl font-semibold leading-tight">{course.title}</h4>
+                    <p className="mt-3 text-[14px] leading-relaxed text-foreground-600">{course.summary || course.audience || 'A focused professional course from College of Marketing.'}</p>
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {(course.focus_list || []).slice(0, 4).map((topic) => (
+                        <span key={topic} className="rounded-full bg-background-100 px-3 py-1 text-xs font-medium text-foreground-600">
+                          {topic}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mt-5 grid grid-cols-2 gap-3 border-t border-background-200 pt-5 text-xs text-foreground-500">
+                      <span>{course.duration || 'Duration TBC'}</span>
+                      <span>{course.owner || 'College of Marketing'}</span>
+                    </div>
+                    <Button to={`/consultation?course=${encodeURIComponent(course.title)}`} variant="link" className="mt-auto self-start pt-6" arrow>
+                      Enroll Now
+                    </Button>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

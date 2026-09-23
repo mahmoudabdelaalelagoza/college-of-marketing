@@ -1,11 +1,12 @@
 ﻿import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { getCurrentUser, logout, type DashboardUser } from '../api';
+import { cmsResourceOptions } from '../cms-api';
 
 const navItems = [
   { label: 'Overview', to: '/dashboard', icon: 'ri-dashboard-line', end: true },
   { label: 'Leads', to: '/dashboard/leads', icon: 'ri-inbox-line' },
-  { label: 'CMS', to: '/dashboard/content/articles', icon: 'ri-database-2-line' },
+  { label: 'Smart Assistant', to: '/dashboard/assistant', icon: 'ri-sparkling-2-line' },
 ];
 
 export default function DashboardLayout() {
@@ -59,7 +60,7 @@ export default function DashboardLayout() {
           </button>
         </div>
 
-        <nav className="mt-8 space-y-1" aria-label="Dashboard">
+        <nav className="mt-8 max-h-[calc(100vh-13rem)] space-y-1 overflow-y-auto pr-1" aria-label="Dashboard">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -76,6 +77,26 @@ export default function DashboardLayout() {
               {item.label}
             </NavLink>
           ))}
+
+          <div className="pt-5">
+            <div className="space-y-1">
+              {cmsResourceOptions.map((item) => (
+                <NavLink
+                  key={item.id}
+                  to={`/dashboard/content/${item.id}`}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                      isActive ? 'bg-primary-800 text-background-50' : 'text-foreground-700 hover:bg-background-100 hover:text-foreground-950'
+                    }`
+                  }
+                >
+                  <i className={`${item.icon} text-lg`} />
+                  <span className="truncate">{item.label}</span>
+                </NavLink>
+              ))}
+            </div>
+          </div>
         </nav>
 
         <div className="absolute bottom-6 left-5 right-5 rounded-md border border-background-300 bg-background-100 p-4">
@@ -111,3 +132,5 @@ export default function DashboardLayout() {
     </div>
   );
 }
+
+

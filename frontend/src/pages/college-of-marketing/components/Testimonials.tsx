@@ -1,7 +1,23 @@
 ﻿import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
+import { usePublicContent } from '@/lib/publicContent';
 
-const testimonials = [
+interface TestimonialCard {
+  quote: string;
+  name: string;
+  role: string;
+  image: string;
+}
+
+interface TestimonialRow {
+  name: string;
+  programme: string | null;
+  reviewer_type: string | null;
+  photo_url: string | null;
+  review_text: string;
+}
+
+const fallbackTestimonials: TestimonialCard[] = [
   {
     quote:
       'The programme gave me a way of thinking, not just a set of tactics. I can now explain the commercial reasoning behind a campaign and get decisions agreed far more quickly.',
@@ -29,6 +45,9 @@ const testimonials = [
 ];
 
 export default function Testimonials() {
+  const { items: cmsTestimonials } = usePublicContent<TestimonialRow>('testimonials', []);
+  const testimonials = cmsTestimonials.length > 0 ? cmsTestimonials.map(mapTestimonial) : fallbackTestimonials;
+
   return (
     <section className="border-y border-background-300 bg-background-50 py-20 md:py-28">
       <div className="container-wide">
@@ -48,7 +67,7 @@ export default function Testimonials() {
                   {item.quote}
                 </blockquote>
                 <figcaption className="mt-7 flex items-center gap-3 border-t border-background-200 pt-6">
-                  <span className="h-11 w-11 overflow-hidden rounded-full">
+                  <span className="h-11 w-11 overflow-hidden rounded-full bg-background-200">
                     <img
                       src={item.image}
                       alt={`${item.name}, ${item.role}`}
@@ -68,4 +87,13 @@ export default function Testimonials() {
       </div>
     </section>
   );
+}
+
+function mapTestimonial(item: TestimonialRow): TestimonialCard {
+  return {
+    quote: item.review_text,
+    name: item.name,
+    role: item.programme || item.reviewer_type || 'College of Marketing learner',
+    image: item.photo_url || '/brand/college-of-marketing-mark.png',
+  };
 }

@@ -293,3 +293,124 @@ create table if not exists site_settings (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table if exists events
+  add column if not exists source text not null default 'dashboard';
+
+alter table if exists events
+  add column if not exists eventbrite_id text;
+
+alter table if exists events
+  add column if not exists eventbrite_url text;
+
+alter table if exists events
+  add column if not exists eventbrite_status text;
+
+alter table if exists events
+  add column if not exists eventbrite_published_at timestamptz;
+
+alter table if exists events
+  add column if not exists is_hidden boolean not null default false;
+
+alter table if exists events
+  add column if not exists raw_eventbrite jsonb;
+
+alter table if exists events
+  add column if not exists last_synced_at timestamptz;
+
+do $$
+begin
+  alter table events add constraint events_eventbrite_id_key unique (eventbrite_id);
+exception
+  when duplicate_object or duplicate_table then null;
+end $$;
+
+create index if not exists events_source_starts_at_idx on events (source, starts_at desc);
+create index if not exists events_visibility_idx on events (is_active, is_hidden, starts_at);
+
+create table if not exists eventbrite_settings (
+  id integer primary key default 1 check (id = 1),
+  private_token_encrypted text,
+  organization_id text,
+  public_backend_url text,
+  sync_interval_minutes integer not null default 15,
+  auto_sync_enabled boolean not null default true,
+  show_uncategorized boolean not null default true,
+  connection_status text not null default 'unverified',
+  last_test_at timestamptz,
+  last_full_sync_at timestamptz,
+  last_sync_status text,
+  updated_by uuid references dashboard_users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists event_classifications (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  slug text not null unique,
+  classification_type text not null default 'local',
+  source text not null default 'local',
+  is_visible boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists event_classifications_visible_idx on event_classifications (is_visible, classification_type, name);
+
+create table if not exists eventbrite_sync_jobs (
+  id uuid primary key default gen_random_uuid(),
+  sync_type text not null default 'full',
+  status text not null default 'queued',
+  trigger_source text not null default 'dashboard',
+  attempt integer not null default 1,
+  created_count integer not null default 0,
+  updated_count integer not null default 0,
+  hidden_count integer not null default 0,
+  skipped_count integer not null default 0,
+  message text,
+  started_at timestamptz,
+  finished_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists eventbrite_sync_jobs_created_at_idx on eventbrite_sync_jobs (created_at desc);
+
+insert into eventbrite_settings (id)
+values (1)
+on conflict (id) do nothing;
+
+create table if not exists assistant_settings (
+  id integer primary key default 1 check (id = 1),
+  api_endpoint text,
+  api_key_encrypted text,
+  model text not null default 'gpt-4.1-mini',
+  daily_request_limit integer not null default 500,
+  assistant_name text not null default 'College assistant',
+  welcome_message text not null default 'Hi, I can help with College of Marketing programmes, courses, funding and events.',
+  fallback_message text not null default 'I could not find a confident answer. Please book a consultation and our team will help you.',
+  is_enabled boolean not null default false,
+  updated_by uuid references dashboard_users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+insert into assistant_settings (id, api_endpoint)
+values (1, 'https://api.openai.com/v1/responses')
+on conflict (id) do nothing;
+
+create table if not exists assistant_chat_logs (
+  id uuid primary key default gen_random_uuid(),
+  request_key text not null,
+  question text not null,
+  answer text,
+  success boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists assistant_chat_logs_request_created_at_idx
+  on assistant_chat_logs (request_key, created_at desc);
+
+create index if not exists assistant_chat_logs_created_at_idx
+  on assistant_chat_logs (created_at desc);
+

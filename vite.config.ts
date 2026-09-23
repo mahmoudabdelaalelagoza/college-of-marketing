@@ -11,7 +11,10 @@ import dashboardLogoutHandler from "./backend/api/dashboard/auth/logout.js";
 import dashboardOverviewHandler from "./backend/api/dashboard/overview.js";
 import dashboardLeadsHandler from "./backend/api/dashboard/leads.js";
 import dashboardCmsHandler from "./backend/api/dashboard/cms.js";
+import dashboardEventsHandler from "./backend/api/dashboard/events.js";
+import dashboardAssistantHandler from "./backend/api/dashboard/assistant.js";
 import publicContentHandler from "./backend/api/public/content.js";
+import publicAssistantHandler from "./backend/api/public/assistant.js";
 
 const base = process.env.BASE_PATH || "/";
 const isPreview = process.env.IS_PREVIEW ? true : false;
@@ -52,7 +55,10 @@ function localApiPlugin(): Plugin {
     "/dashboard/overview": dashboardOverviewHandler,
     "/dashboard/leads": dashboardLeadsHandler,
     "/dashboard/cms": dashboardCmsHandler,
+    "/dashboard/events": dashboardEventsHandler,
+    "/dashboard/assistant": dashboardAssistantHandler,
     "/public/content": publicContentHandler,
+    "/public/assistant": publicAssistantHandler,
   };
 
   return {
@@ -127,3 +133,6 @@ function loadLocalEnv() {
     process.env[key] = rest.join("=").trim().replace(/^"|"$/g, "");
   }
 }
+
+
+

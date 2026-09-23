@@ -31,6 +31,7 @@ export default async function handler(req, res) {
 function publicWhere(resource) {
   if (resource.public?.published) return 'is_published = true';
   if (resource.public?.approved) return "status = 'approved' and consent = true";
+  if (resource.table === 'events') return 'is_active = true and coalesce(is_hidden, false) = false';
   if (resource.public?.active) return 'is_active = true';
   if (resource.public?.visible) return 'is_visible = true';
   if (resource.table === 'site_settings') return 'is_public = true';
@@ -42,3 +43,4 @@ function orderBy(resource) {
   if (resource.fields.includes('display_order')) return ' order by display_order asc, created_at desc';
   return ' order by created_at desc';
 }
+

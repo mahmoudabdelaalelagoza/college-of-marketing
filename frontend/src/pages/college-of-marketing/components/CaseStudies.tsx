@@ -1,7 +1,24 @@
 ﻿import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
+import { usePublicContent } from '@/lib/publicContent';
 
-const caseStudies = [
+interface CaseStudyCard {
+  sector: string;
+  title: string;
+  copy: string;
+  image: string;
+}
+
+interface CaseStudyRow {
+  sector: string | null;
+  title: string;
+  headline: string | null;
+  summary: string | null;
+  outcome: string | null;
+  image_url: string | null;
+}
+
+const fallbackCaseStudies: CaseStudyCard[] = [
   {
     sector: 'Retail & e-commerce',
     title: 'Rebuilding a customer insight routine',
@@ -26,6 +43,9 @@ const caseStudies = [
 ];
 
 export default function CaseStudies() {
+  const { items: cmsCaseStudies } = usePublicContent<CaseStudyRow>('case-studies', []);
+  const caseStudies = cmsCaseStudies.length > 0 ? cmsCaseStudies.map(mapCaseStudy) : fallbackCaseStudies;
+
   return (
     <section id="case-studies" className="container-wide scroll-mt-[148px] py-20 md:py-28">
       <Reveal>
@@ -47,7 +67,7 @@ export default function CaseStudies() {
         {caseStudies.map((item, index) => (
           <Reveal key={item.title} delay={index * 90}>
             <article className="group flex h-full flex-col">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-[14px] border border-background-300">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[14px] border border-background-300 bg-background-100">
                 <img
                   src={item.image}
                   alt={item.title}
@@ -64,4 +84,13 @@ export default function CaseStudies() {
       </div>
     </section>
   );
+}
+
+function mapCaseStudy(item: CaseStudyRow): CaseStudyCard {
+  return {
+    sector: item.sector || 'College of Marketing',
+    title: item.title,
+    copy: item.summary || item.headline || item.outcome || 'Read how marketing capability was applied in the workplace.',
+    image: item.image_url || '/brand/college-of-marketing-logo.png',
+  };
 }

@@ -1,13 +1,13 @@
 ﻿import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import DashboardEvents from '../events/page';
 import {
+  cmsResourceOptions,
   createCmsItem,
   deleteCmsItem,
   getCmsItems,
-  getCmsResources,
   updateCmsItem,
   type CmsItem,
-  type CmsResourceOption,
 } from '../cms-api';
 
 const resourceFields: Record<string, string[]> = {
@@ -33,7 +33,10 @@ const dateFields = new Set(['published_at', 'starts_at', 'ends_at']);
 export default function DashboardContent() {
   const params = useParams();
   const resource = params.resource || 'articles';
-  const [resources, setResources] = useState<CmsResourceOption[]>([]);
+  return resource === 'events' ? <DashboardEvents /> : <GenericDashboardContent resource={resource} />;
+}
+
+function GenericDashboardContent({ resource }: { resource: string }) {
   const [items, setItems] = useState<CmsItem[]>([]);
   const [selected, setSelected] = useState<CmsItem | null>(null);
   const [query, setQuery] = useState('');
@@ -42,14 +45,13 @@ export default function DashboardContent() {
   const [error, setError] = useState('');
 
   const fields = useMemo(() => resourceFields[resource] || resourceFields.articles, [resource]);
-  const resourceLabel = resources.find((item) => item.id === resource)?.label || resource;
+  const resourceLabel = cmsResourceOptions.find((item) => item.id === resource)?.label || resource;
 
   const loadItems = useCallback(() => {
     setLoading(true);
     setError('');
-    Promise.all([getCmsResources(), getCmsItems(resource, query)])
-      .then(([resourcePayload, itemPayload]) => {
-        setResources(resourcePayload.resources);
+    getCmsItems(resource, query)
+      .then((itemPayload) => {
         setItems(itemPayload.items);
         setSelected((current) => current && itemPayload.items.find((item) => item.id === current.id) ? current : itemPayload.items[0] || null);
       })
@@ -131,18 +133,6 @@ export default function DashboardContent() {
         <button type="button" onClick={createBlank} className="rounded-full bg-primary-800 px-5 py-2.5 text-sm font-semibold text-background-50 hover:bg-primary-900">
           New item
         </button>
-      </div>
-
-      <div className="mt-6 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {resources.map((item) => (
-          <Link
-            key={item.id}
-            to={`/dashboard/content/${item.id}`}
-            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold ${item.id === resource ? 'bg-primary-800 text-background-50' : 'bg-background-50 text-foreground-700 hover:bg-background-200'}`}
-          >
-            {item.label}
-          </Link>
-        ))}
       </div>
 
       <form onSubmit={handleSearch} className="mt-6 flex flex-col gap-3 rounded-[16px] border border-background-300 bg-background-50 p-4 shadow-soft md:flex-row">
@@ -238,3 +228,8 @@ function formatValue(field: string, value: unknown) {
   if (dateFields.has(field) && typeof value === 'string') return value.slice(0, 16);
   return String(value);
 }
+
+
+
+
+
