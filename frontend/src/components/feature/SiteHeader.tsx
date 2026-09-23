@@ -104,16 +104,21 @@ export default function SiteHeader() {
       }`}
     >
       <div className="container-wide flex h-full items-center justify-between gap-6">
-        <Link to="/college-of-marketing" className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-primary-900 font-heading text-lg font-semibold leading-none text-accent-400">
-            K
-          </span>
-          <span className="flex flex-col leading-none">
-            <span className="font-heading text-[19px] font-semibold tracking-tight text-foreground-950">
-              Kent Business College
-            </span>
-            <span className="eyebrow mt-1 text-[9px] text-foreground-500">College of Marketing</span>
-          </span>
+        <Link
+          to="/college-of-marketing"
+          className="flex h-14 shrink-0 items-center"
+          aria-label="College of Marketing home"
+        >
+          <img
+            src="/brand/college-of-marketing-mark.png"
+            alt="College of Marketing"
+            className="h-11 w-11 object-contain sm:hidden"
+          />
+          <img
+            src="/brand/college-of-marketing-logo.png"
+            alt="College of Marketing"
+            className="hidden h-12 w-auto object-contain sm:block lg:h-[54px]"
+          />
         </Link>
 
         <nav className="hidden items-center lg:flex" aria-label="Primary">

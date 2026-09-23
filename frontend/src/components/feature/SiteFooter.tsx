@@ -36,12 +36,13 @@ export default function SiteFooter() {
       <div className="container-wide py-16 md:py-20">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-accent-500 font-heading text-lg font-semibold leading-none text-primary-950">
-                K
-              </span>
-              <span className="font-heading text-xl font-semibold">Kent Business College</span>
-            </div>
+            <Link to="/college-of-marketing" className="inline-flex" aria-label="College of Marketing home">
+              <img
+                src="/brand/college-of-marketing-logo.png"
+                alt="College of Marketing"
+                className="h-20 w-auto max-w-[280px] object-contain"
+              />
+            </Link>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-background-50/65">
               A specialist marketing college connecting professional theory with the real
               responsibilities of working marketers - building confident, commercially minded
