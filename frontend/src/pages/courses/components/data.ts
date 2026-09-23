@@ -1,84 +1,83 @@
-﻿export const programmes = [
+﻿import { level4 } from '@/pages/programme/level4-data';
+import { level6 } from '@/pages/programme/level6-data';
+import type { CurriculumModule, ProgrammeConfig } from '@/pages/programme/types';
+
+function programmeMeta(config: ProgrammeConfig) {
+  return [
+    { label: 'Qualification', value: config.hero.facts.find((fact) => fact.label === 'Qualification')?.value ?? 'CIM aligned' },
+    { label: 'Duration', value: config.hero.facts.find((fact) => fact.label === 'Duration')?.value ?? 'Blended' },
+    { label: 'Best for', value: config.level === 'Level 4' ? 'Marketers delivering activity' : 'Strategic marketing leaders' },
+  ];
+}
+
+function enrolPath(programme: ProgrammeConfig, module: CurriculumModule) {
+  const params = new URLSearchParams({
+    programme: `${programme.shortTitle} - ${programme.level}`,
+    course: module.title,
+  });
+
+  return `/consultation?${params.toString()}`;
+}
+
+function modulesFor(programme: ProgrammeConfig) {
+  return programme.curriculum.modules.map((module) => ({
+    ...module,
+    enrolTo: enrolPath(programme, module),
+  }));
+}
+
+export const programmes = [
   {
-    level: 'Level 4',
-    tag: 'Marketing Executive',
-    copy:
-      'Build the professional and digital foundations of modern marketing. For marketers who plan and deliver activity and want a stronger framework for decisions, campaigns and performance.',
-    meta: [
-      { label: 'Qualification', value: 'CIM Level 4 Certificate' },
-      { label: 'Duration', value: 'Approx. 18 months' },
-      { label: 'Best for', value: 'Marketers delivering activity' },
-    ],
+    level: level4.level,
+    tag: level4.shortTitle,
+    copy: level4.hero.copy,
+    meta: programmeMeta(level4),
     to: '/college-of-marketing/marketing-executive-level-4',
-    panel: 'panel-level4',
-    image:
-      'https://readdy.ai/api/search-image?query=Young%20marketing%20professional%20planning%20a%20digital%20campaign%20on%20a%20laptop%20with%20printed%20notes%20and%20charts%2C%20editorial%20premium%20business%20photography%2C%20soft%20natural%20window%20light%2C%20muted%20maroon%20and%20cream%20tones%2C%20calm%20confident%20atmosphere&width=900&height=650&seq=kbc-courses-l4-01&orientation=landscape',
+    panel: level4.panelClass,
+    image: level4.hero.image,
   },
   {
-    level: 'Level 6',
-    tag: 'Marketing Manager',
-    copy:
-      'Move from campaign delivery to strategic marketing leadership. For experienced marketers responsible for direction, customer value, budgets, teams and commercial performance.',
-    meta: [
-      { label: 'Qualification', value: 'CIM Level 6 Diploma' },
-      { label: 'Duration', value: 'Approx. 18 months' },
-      { label: 'Best for', value: 'Strategic marketing leaders' },
-    ],
+    level: level6.level,
+    tag: level6.shortTitle,
+    copy: level6.hero.copy,
+    meta: programmeMeta(level6),
     to: '/college-of-marketing/marketing-manager-level-6',
-    panel: 'panel-level6',
-    image:
-      'https://readdy.ai/api/search-image?query=Senior%20marketing%20manager%20leading%20a%20strategic%20planning%20session%20in%20a%20bright%20meeting%20room%20with%20a%20large%20whiteboard%20of%20plans%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20warm%20neutral%20tones&width=900&height=650&seq=kbc-courses-l6-01&orientation=landscape',
+    panel: level6.panelClass,
+    image: level6.hero.image,
   },
 ];
 
-export const modules = [
+export const programmeCourses = [
   {
-    icon: 'ri-user-search-line',
-    title: 'Customer insight',
-    copy: 'Understand audiences, markets and behaviour to ground every decision in evidence.',
+    programme: `${level4.shortTitle} - ${level4.level}`,
+    eyebrow: 'Level 4 course modules',
+    heading: level4.curriculum.heading,
+    intro: `${level4.curriculum.intro} If you are not eligible for the full apprenticeship route, each module can be taken as a paid standalone course after consultation.`,
+    modules: modulesFor(level4),
   },
   {
-    icon: 'ri-megaphone-line',
-    title: 'Campaign planning',
-    copy: 'Turn insight into integrated campaigns with clear objectives, channels and budgets.',
-  },
-  {
-    icon: 'ri-bar-chart-box-line',
-    title: 'Data & measurement',
-    copy: 'Build measurement frameworks that connect activity to commercial outcomes.',
-  },
-  {
-    icon: 'ri-robot-2-line',
-    title: 'Digital & AI',
-    copy: 'Use digital tools and AI responsibly as part of everyday marketing practice.',
-  },
-  {
-    icon: 'ri-scales-3-line',
-    title: 'Ethics & compliance',
-    copy: 'Apply data protection and ethical standards across every marketing decision.',
-  },
-  {
-    icon: 'ri-lightbulb-line',
-    title: 'Brand & proposition',
-    copy: 'Shape positioning, messaging and propositions that create real customer value.',
+    programme: `${level6.shortTitle} - ${level6.level}`,
+    eyebrow: 'Level 6 course modules',
+    heading: level6.curriculum.heading,
+    intro: `${level6.curriculum.intro} If the funded apprenticeship is not available, you can enrol on selected modules as paid professional courses.`,
+    modules: modulesFor(level6),
   },
 ];
 
-export const shortCourses = [
+export const paidCourseSteps = [
   {
-    title: 'Marketing analytics essentials',
-    duration: '1 day',
-    copy: 'Read performance data with confidence and turn insight into clearer decisions.',
+    title: 'Check apprenticeship eligibility first',
+    copy: 'If the learner and role qualify, the full programme is usually the strongest route because the modules connect together.',
+    icon: 'ri-shield-check-line',
   },
   {
-    title: 'AI for marketers',
-    duration: 'Half day',
-    copy: 'Practical, responsible ways to apply AI to content, insight and productivity.',
+    title: 'Choose standalone modules if needed',
+    copy: 'If the full programme is not suitable, we help choose one or more paid modules around the capability gap.',
+    icon: 'ri-stack-line',
   },
   {
-    title: 'Brand strategy foundations',
-    duration: '2 days',
-    copy: 'Clarify positioning, proposition and messaging for stronger brand presence.',
+    title: 'Book a consultation to enrol',
+    copy: 'A short consultation confirms level, module choice, pricing route and practical next steps before enrolment.',
+    icon: 'ri-calendar-check-line',
   },
 ];
-

@@ -6,37 +6,35 @@ import HeroPattern from '@/components/feature/HeroPattern';
 export default function CoursesHero() {
   return (
     <section className="container-wide pt-8 md:pt-10">
-            <div className="hero-maroon-gradient warm-glow relative overflow-hidden rounded-[18px] px-6 py-14 text-background-50 md:px-14 md:py-20">
-              <HeroPattern />
-              <div className="relative z-10">
-                <Reveal>
-                  <Eyebrow tone="gold">Courses &amp; programmes</Eyebrow>
-                </Reveal>
-                <Reveal delay={80}>
-                  <h1 className="mt-6 max-w-3xl font-heading text-[clamp(2.4rem,4.5vw,4rem)] font-semibold leading-[1.02] tracking-[-0.03em] text-background-50">
-                    Professional marketing programmes, built for the working marketer.
-                  </h1>
-                </Reveal>
-                <Reveal delay={160}>
-                  <p className="reading-width mt-6 text-[17px] leading-relaxed text-background-50/75">
-                    Two funded apprenticeship pathways - plus focused short courses - designed to turn
-                    marketing activity into measurable commercial momentum.
-                  </p>
-                </Reveal>
-                <Reveal delay={240}>
-                  <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <Button to="/courses#programmes" variant="gold" arrow>
-                      Explore programmes
-                    </Button>
-                    <Button to="/college-of-marketing#eligibility" variant="outlineLight">
-                      Check my eligibility
-                    </Button>
-                  </div>
-                </Reveal>
-              </div>
+      <div className="hero-maroon-gradient warm-glow relative overflow-hidden rounded-[18px] px-6 py-14 text-background-50 md:px-14 md:py-20">
+        <HeroPattern />
+        <div className="relative z-10">
+          <Reveal>
+            <Eyebrow tone="gold">Courses &amp; modules</Eyebrow>
+          </Reveal>
+          <Reveal delay={80}>
+            <h1 className="mt-6 max-w-3xl font-heading text-[clamp(2.4rem,4.5vw,4rem)] font-semibold leading-[1.02] tracking-[-0.03em] text-background-50">
+              Programme modules you can take as a full pathway or standalone paid courses.
+            </h1>
+          </Reveal>
+          <Reveal delay={160}>
+            <p className="reading-width mt-6 text-[17px] leading-relaxed text-background-50/75">
+              If you are eligible, the full apprenticeship programme is the recommended route. If not,
+              selected modules can be taken individually as paid professional courses after consultation.
+            </p>
+          </Reveal>
+          <Reveal delay={240}>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Button to="/courses#course-modules" variant="gold" arrow>
+                Explore modules
+              </Button>
+              <Button to="/consultation" variant="outlineLight">
+                Book consultation
+              </Button>
             </div>
-          </section>
+          </Reveal>
+        </div>
+      </div>
+    </section>
   );
 }
-
-

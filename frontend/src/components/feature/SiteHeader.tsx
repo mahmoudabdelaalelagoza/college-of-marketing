@@ -7,14 +7,24 @@ interface NavGroup {
   items: { label: string; to: string; note?: string }[];
 }
 
-const groups: NavGroup[] = [
+const programmeItems = [
   {
-    label: 'Colleges',
-    items: [
-      { label: 'College of Marketing', to: '/college-of-marketing', note: 'Funded professional pathways' },
-      { label: 'Marketing Executive - Level 4', to: '/college-of-marketing/marketing-executive-level-4' },
-      { label: 'Marketing Manager - Level 6', to: '/college-of-marketing/marketing-manager-level-6' },
-    ],
+    label: 'College of Marketing',
+    to: '/',
+    note: 'Overview of the marketing college, eligibility and funded pathways.',
+    icon: 'ri-school-line',
+  },
+  {
+    label: 'Marketing Executive - Level 4',
+    to: '/college-of-marketing/marketing-executive-level-4',
+    note: 'Professional and digital foundations for marketers delivering campaigns.',
+    icon: 'ri-megaphone-line',
+  },
+  {
+    label: 'Marketing Manager - Level 6',
+    to: '/college-of-marketing/marketing-manager-level-6',
+    note: 'Strategic marketing leadership for managers, budgets and teams.',
+    icon: 'ri-presentation-line',
   },
 ];
 
@@ -60,9 +70,11 @@ export default function SiteHeader() {
   }, []);
 
   const dropdown = (group: NavGroup) => (
-    <div className="relative" key={group.label}>
+    <div className="relative" key={group.label} onMouseLeave={() => setOpenMenu(null)}>
       <button
         type="button"
+        onMouseEnter={() => setOpenMenu(group.label)}
+        onFocus={() => setOpenMenu(group.label)}
         onClick={() => setOpenMenu(openMenu === group.label ? null : group.label)}
         className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-foreground-800 transition-colors hover:text-primary-800"
         aria-expanded={openMenu === group.label}
@@ -89,6 +101,72 @@ export default function SiteHeader() {
               )}
             </Link>
           ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const programmesMenu = (
+    <div className="relative" onMouseLeave={() => setOpenMenu(null)}>
+      <button
+        type="button"
+        onMouseEnter={() => setOpenMenu('Programmes')}
+        onFocus={() => setOpenMenu('Programmes')}
+        onClick={() => setOpenMenu(openMenu === 'Programmes' ? null : 'Programmes')}
+        className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-foreground-800 transition-colors hover:text-primary-800"
+        aria-expanded={openMenu === 'Programmes'}
+      >
+        Programmes
+        <i
+          className={`ri-arrow-down-s-line text-base transition-transform duration-300 ${
+            openMenu === 'Programmes' ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+
+      {openMenu === 'Programmes' && (
+        <div className="absolute left-1/2 top-full mt-4 w-[720px] -translate-x-1/2 rounded-[18px] border border-background-300 bg-background-50 p-4 shadow-menu">
+          <div className="grid grid-cols-[0.9fr_1.4fr] gap-4">
+            <div className="rounded-[14px] bg-primary-900 p-5 text-background-50">
+              <p className="eyebrow text-accent-400">Programmes</p>
+              <h3 className="mt-4 font-heading text-2xl font-semibold leading-tight">
+                Funded marketing pathways and standalone course options.
+              </h3>
+              <p className="mt-4 text-sm leading-relaxed text-background-50/70">
+                Start with eligibility. If a full apprenticeship is not the right route, learners can still enrol on individual paid course modules.
+              </p>
+              <Button to="/courses" variant="gold" size="sm" className="mt-6" arrow onClick={() => setOpenMenu(null)}>
+                View courses
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-2">
+              {programmeItems.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setOpenMenu(null)}
+                  className="group flex items-start gap-4 rounded-[14px] border border-transparent p-4 transition-colors hover:border-background-300 hover:bg-background-100"
+                >
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-100 text-secondary-800 transition-colors group-hover:bg-secondary-200">
+                    <i className={`${item.icon} text-lg`} />
+                  </span>
+                  <span>
+                    <span className="block text-sm font-semibold text-foreground-900">{item.label}</span>
+                    <span className="mt-1 block text-xs leading-relaxed text-foreground-500">{item.note}</span>
+                  </span>
+                </Link>
+              ))}
+              <Link
+                to="/consultation"
+                onClick={() => setOpenMenu(null)}
+                className="mt-1 flex items-center justify-between rounded-[14px] bg-background-100 px-4 py-3 text-sm font-semibold text-primary-800 transition-colors hover:bg-background-200"
+              >
+                Book a consultation
+                <i className="ri-arrow-right-line" />
+              </Link>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -122,7 +200,7 @@ export default function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center lg:flex" aria-label="Primary">
-          {dropdown(groups[0])}
+          {programmesMenu}
           {simpleLinks.map((link) => (
             <Link
               key={link.label}
@@ -142,8 +220,8 @@ export default function SiteHeader() {
           >
             Check eligibility
           </Link>
-          <Button to="/college-of-marketing#apply" variant="primary" arrow>
-            Apply Now
+          <Button to="/consultation" variant="primary" arrow>
+            Book Consultation
           </Button>
         </div>
 
@@ -160,7 +238,7 @@ export default function SiteHeader() {
       {mobileOpen && (
         <div className="border-b border-background-300 bg-background-50 lg:hidden">
           <div className="container-wide flex flex-col py-4">
-            {[...groups[0].items, ...simpleLinks, ...moreGroup.items].map((item) => (
+            {[...programmeItems, ...simpleLinks, ...moreGroup.items].map((item) => (
               <Link
                 key={item.label}
                 to={item.to}
@@ -170,8 +248,8 @@ export default function SiteHeader() {
                 {item.label}
               </Link>
             ))}
-            <Button to="/college-of-marketing#apply" variant="primary" className="mt-4 w-full" arrow>
-              Apply Now
+            <Button to="/consultation" variant="primary" className="mt-4 w-full" arrow>
+              Book Consultation
             </Button>
           </div>
         </div>

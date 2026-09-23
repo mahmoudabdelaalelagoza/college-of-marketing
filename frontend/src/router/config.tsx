@@ -4,6 +4,7 @@ import CollegeOfMarketing from "../pages/college-of-marketing/page";
 import MarketingExecutiveLevel4 from "../pages/college-of-marketing/marketing-executive-level-4/page";
 import MarketingManagerLevel6 from "../pages/college-of-marketing/marketing-manager-level-6/page";
 import Courses from "../pages/courses/page";
+import Consultation from "../pages/consultation/page";
 import Events from "../pages/events/page";
 import About from "../pages/about/page";
 import Employers from "../pages/employers/page";
@@ -33,6 +34,10 @@ const routes: RouteObject[] = [
   {
     path: "/courses",
     element: <Courses />,
+  },
+  {
+    path: "/consultation",
+    element: <Consultation />,
   },
   {
     path: "/events",

@@ -1,4 +1,4 @@
-import { neon } from '@neondatabase/serverless';
+﻿import { neon } from '@neondatabase/serverless';
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -18,6 +18,7 @@ export default async function handler(req, res) {
   const organisation = clean(body.organisation);
   const interest = clean(body.interest);
   const message = clean(body.message);
+  const source = clean(body.source) || 'website';
 
   if (!name || !emailPattern.test(email)) {
     return res.status(400).send('Please provide a valid name and email address.');
@@ -25,8 +26,8 @@ export default async function handler(req, res) {
 
   const sql = neon(process.env.DATABASE_URL);
   await sql`
-    insert into lead_submissions (name, email, organisation, interest, message)
-    values (${name}, ${email}, ${organisation || null}, ${interest || null}, ${message || null})
+    insert into lead_submissions (name, email, organisation, interest, message, source)
+    values (${name}, ${email}, ${organisation || null}, ${interest || null}, ${message || null}, ${source})
   `;
 
   return res.status(201).json({ ok: true });
