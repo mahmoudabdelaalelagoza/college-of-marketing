@@ -13,6 +13,10 @@ import FAQ from "../pages/faq/page";
 import Privacy from "../pages/privacy/page";
 import Terms from "../pages/terms/page";
 import Accessibility from "../pages/accessibility/page";
+import DashboardLayout from "../pages/dashboard/components/DashboardLayout";
+import DashboardOverview from "../pages/dashboard/page";
+import DashboardLogin from "../pages/dashboard/login/page";
+import DashboardLeads from "../pages/dashboard/leads/page";
 
 const routes: RouteObject[] = [
   {
@@ -70,6 +74,24 @@ const routes: RouteObject[] = [
   {
     path: "/accessibility",
     element: <Accessibility />,
+  },
+  {
+    path: "/dashboard/login",
+    element: <DashboardLogin />,
+  },
+  {
+    path: "/dashboard",
+    element: <DashboardLayout />,
+    children: [
+      {
+        index: true,
+        element: <DashboardOverview />,
+      },
+      {
+        path: "leads",
+        element: <DashboardLeads />,
+      },
+    ],
   },
   {
     path: "*",
