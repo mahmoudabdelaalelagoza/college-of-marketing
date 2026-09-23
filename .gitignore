@@ -1,0 +1,9 @@
+﻿node_modules
+out
+dist
+.claude
+CLAUDE.md
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
