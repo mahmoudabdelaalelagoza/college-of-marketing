@@ -25,7 +25,7 @@ export default function CollegeNav({ items, spyIds }: CollegeNavProps) {
   };
 
   return (
-    <div className="sticky top-[72px] z-40 border-b border-background-300 bg-background-50/90 backdrop-blur-md">
+    <div className="sticky top-[88px] z-40 border-b border-background-300 bg-background-50/95 shadow-sm backdrop-blur-md sm:top-[96px] md:top-[104px] lg:top-[112px]">
       <div className="container-wide">
         <nav
           className="flex items-center gap-1 overflow-x-auto py-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"

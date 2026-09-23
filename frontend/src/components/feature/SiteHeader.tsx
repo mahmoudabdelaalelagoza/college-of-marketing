@@ -97,9 +97,9 @@ export default function SiteHeader() {
   return (
     <header
       ref={headerRef}
-      className={`sticky top-0 z-50 h-[88px] border-b sm:h-[96px] md:h-[104px] lg:h-[112px] transition-colors duration-300 ${
+      className={`sticky top-0 z-50 h-[88px] border-b shadow-sm sm:h-[96px] md:h-[104px] lg:h-[112px] transition-colors duration-300 ${
         scrolled
-          ? 'border-background-300 bg-background-50/85 backdrop-blur-md'
+          ? 'border-background-300 bg-background-50/85 shadow-md backdrop-blur-md'
           : 'border-transparent bg-background-50'
       }`}
     >
