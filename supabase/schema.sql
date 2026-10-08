@@ -448,7 +448,7 @@ create or replace function verify_site_preview_pin(pin text)
 returns boolean
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   stored_hash text;
@@ -469,7 +469,7 @@ create or replace function set_site_preview_pin(pin text)
 returns void
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 begin
   if not is_dashboard_admin() then
