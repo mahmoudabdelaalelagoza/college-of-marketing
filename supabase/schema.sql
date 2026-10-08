@@ -403,6 +403,7 @@ create index if not exists assistant_chat_logs_created_at_idx
 create table if not exists site_access_settings (
   id integer primary key default 1 check (id = 1),
   maintenance_enabled boolean not null default false,
+  protected_paths jsonb not null default '[]'::jsonb,
   preview_pin_hash text,
   title text not null default 'Website under construction',
   message text not null default 'We are preparing the College of Marketing website. Enter the 6-digit preview code to view the work in progress.',
@@ -410,6 +411,9 @@ create table if not exists site_access_settings (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table if exists site_access_settings
+  add column if not exists protected_paths jsonb not null default '[]'::jsonb;
 
 insert into site_access_settings (id)
 values (1)
@@ -436,7 +440,7 @@ as $$
 $$;
 
 create or replace view public_site_access_settings as
-select id, maintenance_enabled, title, message, updated_at
+select id, maintenance_enabled, protected_paths, title, message, updated_at
 from site_access_settings
 where id = 1;
 

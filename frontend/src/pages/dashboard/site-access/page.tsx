@@ -3,6 +3,7 @@ import { getSiteAccessSettings, saveSiteAccessSettings, type SiteAccessSettings 
 
 const defaultSettings: SiteAccessSettings = {
   maintenance_enabled: false,
+  protected_paths: [],
   has_preview_pin: false,
   title: 'Website under construction',
   message: 'We are preparing the College of Marketing website. Enter the 6-digit preview code to view the work in progress.',
@@ -44,13 +45,14 @@ export default function DashboardSiteAccess() {
     try {
       const payload = await saveSiteAccessSettings({
         maintenance_enabled: form.get('maintenance_enabled') === 'on',
+        protected_paths: String(form.get('protected_paths') || ''),
         preview_pin: pin,
         clear_preview_pin: form.get('clear_preview_pin') === 'on',
         title: String(form.get('title') || ''),
         message: String(form.get('message') || ''),
       });
       setSettings(payload.settings);
-      setNotice('Site access settings saved.');
+      setNotice('Site access settings saved. Visitors will need the current preview code for any protected page.');
       const pinInput = event.currentTarget.elements.namedItem('preview_pin') as HTMLInputElement | null;
       if (pinInput) pinInput.value = '';
     } catch (err) {
@@ -70,7 +72,7 @@ export default function DashboardSiteAccess() {
         <p className="eyebrow text-accent-700">Website access</p>
         <h1 className="mt-3 font-heading text-4xl font-semibold leading-tight text-foreground-950">Maintenance mode</h1>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground-600">
-          Put the public website under construction and let reviewers unlock it with a 6-digit preview code. Dashboard pages stay available for staff.
+          Put the whole public website, or selected public pages, behind a 6-digit preview code. Dashboard pages stay available for staff.
         </p>
       </div>
 
@@ -78,8 +80,9 @@ export default function DashboardSiteAccess() {
       {error && <p className="mt-5 rounded-md bg-primary-100 px-4 py-3 text-sm font-medium text-primary-800">{error}</p>}
 
       <section className="mt-7 rounded-[16px] border border-background-300 bg-background-50 p-6 shadow-soft">
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          <Status label="Public site" value={settings.maintenance_enabled ? 'Under construction' : 'Open'} active={!settings.maintenance_enabled} />
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
+          <Status label="Public site" value={settings.maintenance_enabled ? 'Whole site protected' : 'Open'} active={!settings.maintenance_enabled} />
+          <Status label="Protected pages" value={settings.protected_paths.length ? String(settings.protected_paths.length) : 'None'} active={!settings.protected_paths.length} />
           <Status label="Preview PIN" value={settings.has_preview_pin ? 'Set' : 'Not set'} active={settings.has_preview_pin} />
           <Status label="Last update" value={settings.updated_at ? new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(settings.updated_at)) : 'Never'} active />
         </div>
@@ -87,7 +90,21 @@ export default function DashboardSiteAccess() {
         <form onSubmit={handleSave} className="mt-8 grid grid-cols-1 gap-5">
           <label className="flex items-center gap-3 rounded-[12px] border border-background-300 bg-background-100 px-4 py-3 text-sm font-semibold text-foreground-800">
             <input name="maintenance_enabled" type="checkbox" defaultChecked={settings.maintenance_enabled} />
-            Enable maintenance mode for public website
+            Enable maintenance mode for the whole public website
+          </label>
+
+          <label className="text-sm font-semibold text-foreground-800">
+            Protected page paths
+            <textarea
+              name="protected_paths"
+              defaultValue={settings.protected_paths.join('\n')}
+              rows={6}
+              placeholder={'/college-of-marketing/marketing-executive-level-4\n/courses\n/events'}
+              className="mt-2 w-full rounded-[10px] border border-background-300 px-4 py-3 font-mono text-sm leading-relaxed"
+            />
+            <span className="mt-2 block text-xs font-normal text-foreground-500">
+              Add one path per line. A path protects that page and any child pages under it. Leave blank to protect no individual pages.
+            </span>
           </label>
 
           <label className="text-sm font-semibold text-foreground-800">
@@ -100,7 +117,7 @@ export default function DashboardSiteAccess() {
               placeholder={settings.has_preview_pin ? 'PIN saved - leave blank to keep it' : 'Example: 123456'}
               className="mt-2 w-full rounded-[10px] border border-background-300 px-4 py-3 tracking-[0.2em]"
             />
-            <span className="mt-2 block text-xs font-normal text-foreground-500">The PIN is stored as a secure hash. It is not shown again after saving.</span>
+            <span className="mt-2 block text-xs font-normal text-foreground-500">The PIN is stored as a secure hash. It is not shown again after saving. Enter a new PIN to change it.</span>
           </label>
 
           <label className="text-sm font-semibold text-foreground-800">
@@ -136,4 +153,3 @@ function Status({ label, value, active }: { label: string; value: string; active
     </div>
   );
 }
-

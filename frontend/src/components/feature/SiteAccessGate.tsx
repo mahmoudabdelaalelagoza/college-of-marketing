@@ -1,19 +1,23 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { isSupabaseConfigured, requireSupabase } from '@/lib/supabase';
 
 interface SiteAccessState {
   maintenance_enabled: boolean;
+  protected_paths: string[];
   unlocked: boolean;
   title: string;
   message: string;
+  updated_at: string | null;
 }
 
 const defaultState: SiteAccessState = {
   maintenance_enabled: false,
+  protected_paths: [],
   unlocked: true,
   title: 'Website under construction',
   message: 'Enter the 6-digit preview code to view the work in progress.',
+  updated_at: null,
 };
 
 const unlockKey = 'com_preview_access';
@@ -26,6 +30,12 @@ export default function SiteAccessGate({ children }: { children: ReactNode }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const isDashboard = location.pathname.startsWith('/dashboard');
+  const accessToken = state.updated_at || 'initial';
+  const pageProtected = useMemo(
+    () => isProtectedPath(location.pathname, state.protected_paths),
+    [location.pathname, state.protected_paths],
+  );
+  const accessRequired = state.maintenance_enabled || pageProtected;
 
   useEffect(() => {
     if (isDashboard || !isSupabaseConfigured) {
@@ -41,16 +51,25 @@ export default function SiteAccessGate({ children }: { children: ReactNode }) {
       try {
         const { data } = await client
           .from('public_site_access_settings')
-          .select('maintenance_enabled,title,message')
+          .select('*')
           .eq('id', 1)
           .maybeSingle();
         if (!active) return;
         const maintenance = Boolean(data?.maintenance_enabled);
+        const rawProtectedPaths = (data as { protected_paths?: unknown } | null)?.protected_paths;
+        const protectedPaths = Array.isArray(rawProtectedPaths)
+          ? rawProtectedPaths.filter((path): path is string => typeof path === 'string')
+          : [];
+        const token = data?.updated_at || 'initial';
+        const protectedCurrentPage = isProtectedPath(location.pathname, protectedPaths);
+        const requiresAccess = maintenance || protectedCurrentPage;
         setState({
           maintenance_enabled: maintenance,
-          unlocked: !maintenance || window.localStorage.getItem(unlockKey) === '1',
+          protected_paths: protectedPaths,
+          unlocked: !requiresAccess || window.localStorage.getItem(unlockKey) === token,
           title: data?.title || defaultState.title,
           message: data?.message || defaultState.message,
+          updated_at: data?.updated_at || null,
         });
       } catch {
         if (active) setState(defaultState);
@@ -62,7 +81,7 @@ export default function SiteAccessGate({ children }: { children: ReactNode }) {
     return () => {
       active = false;
     };
-  }, [isDashboard]);
+  }, [isDashboard, location.pathname]);
 
   if (isDashboard) return <>{children}</>;
 
@@ -83,7 +102,7 @@ export default function SiteAccessGate({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!state.maintenance_enabled || state.unlocked) return <>{children}</>;
+  if (!accessRequired || state.unlocked) return <>{children}</>;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -94,7 +113,7 @@ export default function SiteAccessGate({ children }: { children: ReactNode }) {
       const client = requireSupabase();
       const { data, error: pinError } = await client.rpc('verify_site_preview_pin', { pin });
       if (pinError || data !== true) throw new Error('Invalid preview code.');
-      window.localStorage.setItem(unlockKey, '1');
+      window.localStorage.setItem(unlockKey, accessToken);
       setState((current) => ({ ...current, unlocked: true }));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid preview code.');
@@ -137,4 +156,24 @@ export default function SiteAccessGate({ children }: { children: ReactNode }) {
       </section>
     </main>
   );
+}
+
+function isProtectedPath(pathname: string, protectedPaths: string[]) {
+  const current = normalizePath(pathname);
+  return protectedPaths.some((path) => {
+    const protectedPath = normalizePath(path);
+    if (!protectedPath) return false;
+    if (protectedPath.endsWith('/*')) {
+      const prefix = protectedPath.slice(0, -2) || '/';
+      return current === prefix || current.startsWith(`${prefix}/`);
+    }
+    return current === protectedPath || current.startsWith(`${protectedPath}/`);
+  });
+}
+
+function normalizePath(path: string) {
+  const clean = (path || '').split('?')[0].split('#')[0].trim();
+  if (!clean) return '';
+  const withSlash = clean.startsWith('/') ? clean : `/${clean}`;
+  return withSlash.length > 1 ? withSlash.replace(/\/+$/, '') : withSlash;
 }
