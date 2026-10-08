@@ -5,7 +5,7 @@ alter table if exists site_access_settings
   add column if not exists protected_paths jsonb not null default '[]'::jsonb;
 
 create or replace view public_site_access_settings as
-select id, maintenance_enabled, protected_paths, title, message, updated_at
+select id, maintenance_enabled, title, message, updated_at, protected_paths
 from site_access_settings
 where id = 1;
 
