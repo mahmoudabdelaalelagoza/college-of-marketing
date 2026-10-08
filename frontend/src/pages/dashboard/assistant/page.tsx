@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import {
   createAssistantSource,
   deleteAssistantSource,
@@ -7,7 +7,7 @@ import {
   updateAssistantSource,
   type AssistantDashboardPayload,
   type AssistantSource,
-} from '../assistant-api';
+} from '../data/assistant-api';
 
 const emptySource: Partial<AssistantSource> = {
   title: '',

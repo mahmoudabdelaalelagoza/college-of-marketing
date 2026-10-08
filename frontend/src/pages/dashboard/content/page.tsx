@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
 import DashboardEvents from '../events/page';
 import {
@@ -8,7 +8,7 @@ import {
   getCmsItems,
   updateCmsItem,
   type CmsItem,
-} from '../cms-api';
+} from '../data/cms-api';
 
 const resourceFields: Record<string, string[]> = {
   articles: ['title', 'slug', 'excerpt', 'content', 'category', 'author', 'image_url', 'image_alt', 'read_minutes', 'is_published', 'published_at', 'display_order'],

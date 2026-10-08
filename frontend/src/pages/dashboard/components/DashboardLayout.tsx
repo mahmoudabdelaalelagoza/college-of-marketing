@@ -1,7 +1,7 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { getCurrentUser, logout, type DashboardUser } from '../api';
-import { cmsResourceOptions } from '../cms-api';
+import { getCurrentUser, logout, type DashboardUser } from '../data/api';
+import { cmsResourceOptions } from '../data/cms-api';
 
 const navItems = [
   { label: 'Overview', to: '/dashboard', icon: 'ri-dashboard-line', end: true },

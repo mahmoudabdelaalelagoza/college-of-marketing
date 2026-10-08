@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import {
   addEventClassification,
   getDashboardEvents,
@@ -12,7 +12,7 @@ import {
   type DashboardManagedEvent,
   type EventbriteSyncJob,
   type EventClassification,
-} from '../events-api';
+} from '../data/events-api';
 
 type EventsTab = 'events' | 'categories' | 'connection' | 'history';
 

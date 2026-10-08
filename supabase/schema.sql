@@ -1,31 +1,16 @@
 create extension if not exists pgcrypto;
 
-create table if not exists dashboard_users (
-  id uuid primary key default gen_random_uuid(),
+create table if not exists dashboard_profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
   email text not null unique,
   username text unique,
   name text not null,
-  password_hash text not null,
   role text not null default 'admin',
   is_active boolean not null default true,
-  last_login_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
-create index if not exists dashboard_users_email_idx
-  on dashboard_users (lower(email));
-
-create table if not exists dashboard_login_attempts (
-  id uuid primary key default gen_random_uuid(),
-  request_key text not null,
-  identifier text not null,
-  success boolean not null default false,
-  created_at timestamptz not null default now()
-);
-
-create index if not exists dashboard_login_attempts_request_key_created_at_idx
-  on dashboard_login_attempts (request_key, created_at desc);
 
 create table if not exists lead_submissions (
   id uuid primary key default gen_random_uuid(),
@@ -37,7 +22,7 @@ create table if not exists lead_submissions (
   source text not null default 'website',
   status text not null default 'new',
   is_read boolean not null default false,
-  assigned_to uuid references dashboard_users(id) on delete set null,
+  assigned_to uuid references dashboard_profiles(id) on delete set null,
   internal_notes text,
   follow_up_at timestamptz,
   created_at timestamptz not null default now(),
@@ -51,7 +36,7 @@ alter table if exists lead_submissions
   add column if not exists is_read boolean not null default false;
 
 alter table if exists lead_submissions
-  add column if not exists assigned_to uuid references dashboard_users(id) on delete set null;
+  add column if not exists assigned_to uuid references dashboard_profiles(id) on delete set null;
 
 alter table if exists lead_submissions
   add column if not exists internal_notes text;
@@ -86,7 +71,7 @@ create table if not exists media_assets (
   url text not null,
   alt_text text,
   source_url text,
-  uploaded_by uuid references dashboard_users(id) on delete set null,
+  uploaded_by uuid references dashboard_profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -149,7 +134,7 @@ create table if not exists testimonials (
   is_featured boolean not null default false,
   display_order integer not null default 0,
   moderation_notes text,
-  reviewed_by uuid references dashboard_users(id) on delete set null,
+  reviewed_by uuid references dashboard_profiles(id) on delete set null,
   reviewed_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -254,7 +239,7 @@ create table if not exists page_content_sections (
   published_value text,
   is_visible boolean not null default true,
   version integer not null default 1,
-  updated_by uuid references dashboard_users(id) on delete set null,
+  updated_by uuid references dashboard_profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (page_path, section_key, field_key)
@@ -265,7 +250,7 @@ create table if not exists page_content_versions (
   page_content_section_id uuid not null references page_content_sections(id) on delete cascade,
   version integer not null,
   published_value text,
-  published_by uuid references dashboard_users(id) on delete set null,
+  published_by uuid references dashboard_profiles(id) on delete set null,
   published_at timestamptz not null default now()
 );
 
@@ -289,7 +274,7 @@ create table if not exists site_settings (
   setting_value text,
   setting_type text not null default 'text',
   is_public boolean not null default false,
-  updated_by uuid references dashboard_users(id) on delete set null,
+  updated_by uuid references dashboard_profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -340,7 +325,7 @@ create table if not exists eventbrite_settings (
   last_test_at timestamptz,
   last_full_sync_at timestamptz,
   last_sync_status text,
-  updated_by uuid references dashboard_users(id) on delete set null,
+  updated_by uuid references dashboard_profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -390,7 +375,7 @@ create table if not exists assistant_settings (
   welcome_message text not null default 'Hi, I can help with College of Marketing programmes, courses, funding and events.',
   fallback_message text not null default 'I could not find a confident answer. Please book a consultation and our team will help you.',
   is_enabled boolean not null default false,
-  updated_by uuid references dashboard_users(id) on delete set null,
+  updated_by uuid references dashboard_profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -421,7 +406,7 @@ create table if not exists site_access_settings (
   preview_pin_hash text,
   title text not null default 'Website under construction',
   message text not null default 'We are preparing the College of Marketing website. Enter the 6-digit preview code to view the work in progress.',
-  updated_by uuid references dashboard_users(id) on delete set null,
+  updated_by uuid references dashboard_profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -431,19 +416,9 @@ values (1)
 on conflict (id) do nothing;
 
 
--- Supabase static-hosting additions
+-- Supabase public access, dashboard auth, and RLS policies.
 -- Run this whole file in Supabase SQL Editor after creating the project.
 
-create table if not exists dashboard_profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
-  email text not null unique,
-  username text unique,
-  name text not null,
-  role text not null default 'admin',
-  is_active boolean not null default true,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
 
 create or replace function is_dashboard_admin()
 returns boolean

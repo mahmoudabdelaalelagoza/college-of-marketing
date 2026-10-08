@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/base/Button';
-import { login } from '../api';
+import { login } from '../data/api';
 
 export default function DashboardLogin() {
   const navigate = useNavigate();

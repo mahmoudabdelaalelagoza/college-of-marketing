@@ -1,5 +1,5 @@
-﻿import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { getLeads, updateLead, type DashboardLead, type LeadStats } from '../api';
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { getLeads, updateLead, type DashboardLead, type LeadStats } from '../data/api';
 
 const statuses = ['new', 'contacted', 'qualified', 'closed'] as const;
 

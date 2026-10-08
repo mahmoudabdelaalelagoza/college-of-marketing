@@ -1,5 +1,5 @@
-﻿import { useEffect, useState, type FormEvent } from 'react';
-import { getSiteAccessSettings, saveSiteAccessSettings, type SiteAccessSettings } from '../site-access-api';
+import { useEffect, useState, type FormEvent } from 'react';
+import { getSiteAccessSettings, saveSiteAccessSettings, type SiteAccessSettings } from '../data/site-access-api';
 
 const defaultSettings: SiteAccessSettings = {
   maintenance_enabled: false,
