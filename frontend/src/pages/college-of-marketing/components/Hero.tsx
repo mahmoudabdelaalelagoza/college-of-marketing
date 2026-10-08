@@ -3,6 +3,7 @@ import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import HeroPattern from '@/components/feature/HeroPattern';
 import EditorialImage from '@/components/feature/EditorialImage';
+import { externalImages } from '@/lib/externalImages';
 
 const pathway = [
   { key: 'Level 4', value: 'Marketing Executive' },
@@ -68,6 +69,7 @@ export default function Hero() {
               <Reveal delay={160}>
                 <div className="hero-float-image relative aspect-[4/5] overflow-hidden rounded-[16px] border border-background-50/12">
                   <EditorialImage
+                    src={externalImages.marketingWorkshopPortrait}
                     alt="Marketing professionals collaborating in a strategy session at Kent Business College"
                     seed="kbc-hero-strategy-01"
                     className="h-full w-full object-cover"

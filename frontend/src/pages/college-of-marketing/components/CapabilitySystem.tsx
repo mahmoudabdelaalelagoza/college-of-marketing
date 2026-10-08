@@ -2,6 +2,7 @@
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import EditorialImage from '@/components/feature/EditorialImage';
+import { externalImages } from '@/lib/externalImages';
 
 interface Capability {
   key: string;
@@ -22,7 +23,7 @@ const capabilities: Capability[] = [
     headline: 'Understand the market before deciding the message.',
     copy: 'Develop research, segmentation and customer understanding practices that help marketers identify meaningful needs, priorities and opportunities.',
     subs: ['Research framing', 'Insight synthesis', 'Segmentation', 'Ethical practice'],
-    image: null,
+    image: externalImages.planningSessionWide,
     seed: 'kbc-cap-insight-01',
   },
   {
@@ -32,7 +33,7 @@ const capabilities: Capability[] = [
     headline: 'Shape propositions people recognise, trust and choose.',
     copy: 'Build brands and offers with clarity and consistency, connecting positioning, promise and creative direction to real customer value.',
     subs: ['Positioning', 'Value proposition', 'Brand architecture', 'Creative direction'],
-    image: null,
+    image: externalImages.plantOfficePresentation,
     seed: 'kbc-cap-brand-01',
   },
   {
@@ -42,7 +43,7 @@ const capabilities: Capability[] = [
     headline: 'Design journeys that acquire, convert and retain.',
     copy: 'Plan content, channels and experiences that move customers through a considered journey, balancing reach, relevance and return.',
     subs: ['Channel strategy', 'Content and search', 'Paid and owned media', 'Conversion journeys'],
-    image: null,
+    image: externalImages.marketingLaptopPortrait,
     seed: 'kbc-cap-digital-01',
   },
   {
@@ -52,7 +53,7 @@ const capabilities: Capability[] = [
     headline: 'Measure what matters and use AI responsibly.',
     copy: 'Turn data into decisions with measurement frameworks, testing discipline and a responsible approach to AI enabled marketing practice.',
     subs: ['Measurement frameworks', 'Analytics literacy', 'Testing and optimisation', 'Responsible AI'],
-    image: null,
+    image: externalImages.digitalPresentationWide,
     seed: 'kbc-cap-data-01',
   },
   {
@@ -62,7 +63,7 @@ const capabilities: Capability[] = [
     headline: 'Connect marketing decisions to commercial outcomes.',
     copy: 'Set direction, influence stakeholders and lead teams and agencies with a clear commercial rationale behind every marketing choice.',
     subs: ['Market and commercial analysis', 'Planning and budgeting', 'Stakeholder influence', 'Team and agency leadership'],
-    image: null,
+    image: externalImages.strategyDiscussionWide,
     seed: 'kbc-cap-strategy-01',
   },
 ];

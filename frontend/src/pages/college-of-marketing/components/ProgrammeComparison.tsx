@@ -2,6 +2,7 @@
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import EditorialImage from '@/components/feature/EditorialImage';
+import { externalImages } from '@/lib/externalImages';
 
 interface PanelData {
   level: string;
@@ -35,7 +36,7 @@ const panels: PanelData[] = [
     cim: 'CIM Level 4 Certificate pathway',
     to: '/college-of-marketing/marketing-executive-level-4',
     panelClass: 'panel-level4',
-    image: null,
+    image: externalImages.onlineMarketingMeeting,
     seed: 'kbc-panel-l4-01',
   },
   {
@@ -56,7 +57,7 @@ const panels: PanelData[] = [
     cim: 'CIM Level 6 Diploma pathway',
     to: '/college-of-marketing/marketing-manager-level-6',
     panelClass: 'panel-level6',
-    image: null,
+    image: externalImages.teamPresentation16x9,
     seed: 'kbc-panel-l6-01',
   },
 ];

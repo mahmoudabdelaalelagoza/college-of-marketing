@@ -1,6 +1,7 @@
 ﻿import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import EditorialImage from '@/components/feature/EditorialImage';
+import { externalImages } from '@/lib/externalImages';
 
 const outputs = [
   {
@@ -48,6 +49,7 @@ export default function WorkplaceOutputs() {
           <Reveal delay={120}>
             <div className="mt-10 overflow-hidden rounded-[14px] border border-background-300">
               <EditorialImage
+                src={externalImages.teamPresentationWide}
                 alt="Marketing professional presenting campaign performance results"
                 seed="kbc-outputs-presenting-01"
                 className="h-[360px] w-full object-cover md:h-[440px]"

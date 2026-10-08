@@ -2,6 +2,7 @@
 import Reveal from '@/components/base/Reveal';
 import HeroPattern from '@/components/feature/HeroPattern';
 import EditorialImage from '@/components/feature/EditorialImage';
+import { externalImages } from '@/lib/externalImages';
 
 const stages = [
   {
@@ -29,17 +30,17 @@ const stages = [
 const socialMoments = [
   {
     caption: 'Creating social content',
-    image: null,
+    image: externalImages.onlineMarketingMeeting,
     seed: 'kbc-os-social-01',
   },
   {
     caption: 'Campaign launch events',
-    image: null,
+    image: externalImages.teamPresentationWide,
     seed: 'kbc-os-launch-01',
   },
   {
     caption: 'Networking & community',
-    image: null,
+    image: externalImages.collaborationWorkspace,
     seed: 'kbc-os-network-01',
   },
 ];

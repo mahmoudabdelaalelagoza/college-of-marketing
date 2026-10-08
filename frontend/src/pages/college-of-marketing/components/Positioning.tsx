@@ -1,6 +1,7 @@
 ﻿import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import EditorialImage from '@/components/feature/EditorialImage';
+import { externalImages } from '@/lib/externalImages';
 
 const capabilityLabels = [
   'Customer insight',
@@ -30,6 +31,7 @@ export default function Positioning() {
           <Reveal delay={120}>
             <div className="mt-10 overflow-hidden rounded-[14px] border border-background-300">
               <EditorialImage
+                src={externalImages.planningSessionWide}
                 alt="Marketing professionals reviewing customer insight research"
                 seed="kbc-positioning-insight-01"
                 className="h-[300px] w-full object-cover md:h-[360px]"

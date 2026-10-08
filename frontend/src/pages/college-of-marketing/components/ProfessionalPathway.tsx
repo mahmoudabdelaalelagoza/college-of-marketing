@@ -1,27 +1,28 @@
 ﻿import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import EditorialImage from '@/components/feature/EditorialImage';
+import { externalImages } from '@/lib/externalImages';
 
 const steps = [
   {
     tag: 'Entry',
     title: 'Marketing Executive - Level 4',
     copy: 'Build the professional and digital foundations, with a route to the CIM Level 4 Certificate.',
-    image: null,
+    image: externalImages.marketingLaptopPortrait,
     seed: 'kbc-pathway-l4-01',
   },
   {
     tag: 'Progression',
     title: 'Marketing Manager - Level 6',
     copy: 'Move into strategic leadership, commercial accountability and the CIM Level 6 Diploma pathway.',
-    image: null,
+    image: externalImages.teamPresentationWide,
     seed: 'kbc-pathway-l6-01',
   },
   {
     tag: 'Continuing',
     title: 'Professional development',
     copy: 'Sustain your practice through CIM membership, continuing professional development and specialisms.',
-    image: null,
+    image: externalImages.collaborationWorkspace,
     seed: 'kbc-pathway-cpd-01',
   },
 ];

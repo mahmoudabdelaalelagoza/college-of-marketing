@@ -1,36 +1,37 @@
 ﻿import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import EditorialImage from '@/components/feature/EditorialImage';
+import { externalImages } from '@/lib/externalImages';
 
 const moments = [
   {
     caption: 'Industry networking evenings',
     ratio: 'aspect-[4/3]',
-    image: null,
+    image: externalImages.collaborationWorkspace,
     seed: 'kbc-social-networking-01',
   },
   {
     caption: 'The content studio',
     ratio: 'aspect-[3/4]',
-    image: null,
+    image: externalImages.marketingLaptopPortrait,
     seed: 'kbc-social-content-01',
   },
   {
     caption: 'Hands-on campaign workshops',
     ratio: 'aspect-[4/3]',
-    image: null,
+    image: externalImages.marketingWorkshopPortrait,
     seed: 'kbc-social-workshop-01',
   },
   {
     caption: 'Celebrating achievement',
     ratio: 'aspect-[3/4]',
-    image: null,
+    image: externalImages.teamPresentationWide,
     seed: 'kbc-social-event-01',
   },
   {
     caption: 'A community that spreads ideas',
     ratio: 'aspect-[4/3]',
-    image: null,
+    image: externalImages.meetingPresentationPortrait,
     seed: 'kbc-social-community-01',
   },
 ];

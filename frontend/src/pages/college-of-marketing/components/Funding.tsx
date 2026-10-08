@@ -2,6 +2,7 @@
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import EditorialImage from '@/components/feature/EditorialImage';
+import { externalImages } from '@/lib/externalImages';
 
 const facts = [
   { label: 'Levy funded', value: 'Employers with an apprenticeship service account can use levy funds to cover training and assessment.' },
@@ -58,6 +59,7 @@ export default function Funding() {
             <Reveal delay={120}>
               <div className="mb-6 overflow-hidden rounded-[14px] border border-background-300">
                 <EditorialImage
+                  src={externalImages.collaborationWorkspace}
                   alt="Reviewing apprenticeship funding guidance"
                   seed="kbc-funding-01"
                   className="h-[240px] w-full object-cover md:h-[280px]"

@@ -1,3 +1,4 @@
+import { externalImages } from '@/lib/externalImages';
 import type { ProgrammeConfig } from './types';
 
 export const level4: ProgrammeConfig = {
@@ -10,7 +11,7 @@ export const level4: ProgrammeConfig = {
     title: 'Build the professional and',
     highlight: 'digital foundations of marketing.',
     copy: 'A funded apprenticeship for marketers who plan and deliver activity. Develop customer insight, campaign planning, digital channels, data literacy and professional practice - and connect every decision to measurable business outcomes.',
-    image: null,
+    image: externalImages.onlineMarketingMeeting,
     seed: 'kbc-level4-hero-01',
     imageAlt: 'Marketing Executive planning a digital campaign at Kent Business College',
     facts: [

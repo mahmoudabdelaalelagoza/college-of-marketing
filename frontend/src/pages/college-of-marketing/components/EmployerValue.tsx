@@ -2,6 +2,7 @@ import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import LeadForm from '@/components/feature/LeadForm';
 import EditorialImage from '@/components/feature/EditorialImage';
+import { externalImages } from '@/lib/externalImages';
 
 const valueProps = [
   {
@@ -63,6 +64,7 @@ export default function EmployerValue() {
           <Reveal delay={120}>
             <div className="mb-6 overflow-hidden rounded-[16px] border border-background-300">
               <EditorialImage
+                src={externalImages.digitalInterfaceMeeting}
                 alt="Employers discussing workforce marketing capability"
                 seed="kbc-employer-01"
                 className="h-[240px] w-full object-cover md:h-[280px]"

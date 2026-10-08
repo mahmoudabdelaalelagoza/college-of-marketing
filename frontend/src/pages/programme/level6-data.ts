@@ -1,3 +1,4 @@
+import { externalImages } from '@/lib/externalImages';
 import type { ProgrammeConfig } from './types';
 
 export const level6: ProgrammeConfig = {
@@ -10,7 +11,7 @@ export const level6: ProgrammeConfig = {
     title: 'Move from campaign delivery to',
     highlight: 'strategic marketing leadership.',
     copy: 'A funded apprenticeship for experienced marketers leading strategy, budgets, teams and agencies. Develop commercial intelligence, brand and customer value leadership, performance management and responsible AI - and prove marketing\u2019s contribution to business outcomes.',
-    image: null,
+    image: externalImages.teamPresentationWide,
     seed: 'kbc-level6-hero-01',
     imageAlt: 'Marketing Manager presenting strategy to their team at Kent Business College',
     facts: [

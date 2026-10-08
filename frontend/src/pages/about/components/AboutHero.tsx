@@ -2,6 +2,7 @@
 import Reveal from '@/components/base/Reveal';
 import HeroPattern from '@/components/feature/HeroPattern';
 import EditorialImage from '@/components/feature/EditorialImage';
+import { externalImages } from '@/lib/externalImages';
 
 export default function AboutHero() {
   return (
@@ -30,6 +31,7 @@ export default function AboutHero() {
                   <Reveal delay={200}>
                     <div className="relative aspect-[4/3] overflow-hidden rounded-[16px] border border-background-50/12">
                       <EditorialImage
+                        src={externalImages.plantOfficePresentation}
                         alt="Kent Business College campus"
                         seed="kbc-about-campus-01"
                         className="h-full w-full object-cover"
