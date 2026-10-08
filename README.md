@@ -1,7 +1,8 @@
-﻿# Kent Business College - College of Marketing
+# Kent Business College - College of Marketing
 
-React + Vite + Tailwind website for the College of Marketing pages, with
-server-side API routes ready for Neon Postgres.
+React + Vite + Tailwind website for the College of Marketing pages. The live
+Hostinger build is static and talks directly to Supabase for forms, public CMS
+content, dashboard auth and dashboard CRUD.
 
 ## Project Structure
 
@@ -15,16 +16,14 @@ frontend/
       base/                Button, Eyebrow, Reveal primitives
       feature/             Site shell, forms, assistant, editorial imagery
     hooks/                 useActiveSection scroll spy
-    lib/                   form submission, public content, SEO
+    lib/                   Supabase client, form submission, public content, SEO
     pages/<page>/          Route pages
       components/          Page-specific section components
     router/                Route table and router entry
-backend/
-  api/                     Real server-side handlers
-  db/schema.sql            Neon database schema
-  lib/                     Shared auth, HTTP and domain helpers
-api/                       Thin Vercel-compatible wrappers that call backend/api
+backend/                   Legacy server handlers kept for reference
+api/                       Legacy Vercel-compatible wrappers
 scripts/                   Schema, seeding and content checks
+supabase/schema.sql        Supabase tables, RPC functions and RLS policies
 ```
 
 When you want to edit a visible page section, start in:
@@ -51,19 +50,61 @@ npm run dev
 
 On Windows PowerShell, use `npm.cmd run dev` if script execution is disabled.
 
-## Neon Setup
+## Supabase Setup
 
-1. Create a Neon Postgres database.
-2. Run `backend/db/schema.sql` in the Neon SQL editor, or `npm run db:apply`.
-3. Copy `.env.example` to `.env` in your deployment environment and set `DATABASE_URL`.
-4. Deploy with a host that supports serverless API routes in the root `api/` folder, such as Vercel.
+1. Create a Supabase project.
+2. Open the Supabase SQL editor and run `supabase/schema.sql`.
+3. In Supabase Auth, create the dashboard user.
+4. Add that Auth user to `dashboard_profiles` with the same user UUID:
 
-The browser never connects to Neon directly. Forms post to `/api/leads` and
-`/api/newsletter`, and those API routes use `DATABASE_URL` server-side.
+```sql
+insert into dashboard_profiles (id, email, name, role)
+values ('AUTH_USER_UUID', 'admin@example.com', 'Admin', 'admin');
+```
 
-Set `DASHBOARD_SECRET` in production. It signs dashboard sessions and the
-maintenance preview cookie; without it those routes refuse to run rather than
-falling back to a guessable key.
+5. Set frontend environment variables before building:
+
+```env
+VITE_SUPABASE_URL="https://YOUR_PROJECT.supabase.co"
+VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
+```
+
+The public site can insert leads/newsletter rows and read only published CMS
+content. Dashboard access is restricted by Supabase Auth plus the
+`dashboard_profiles` table and RLS policies.
+
+## Hostinger FTP Deploy
+
+GitHub Actions builds the static site and uploads `dist/` to Hostinger over FTP
+on every push to `main`.
+
+Required GitHub repository secrets:
+
+```text
+FTP_SERVER
+FTP_USERNAME
+FTP_PASSWORD
+FTP_SERVER_DIR
+VITE_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY
+```
+
+Build settings if you upload source to Hostinger directly:
+
+```text
+Framework: Vite / React
+Install command: npm ci
+Build command: npm run build
+Output directory: dist
+Node version: 20
+```
+
+## Current Static-Hosting Limits
+
+Eventbrite private-token sync and real AI responses require a server-side worker
+or Supabase Edge Function. The static Hostinger build keeps Eventbrite settings
+editable and supports manual event management in the CMS, but it does not expose
+private API tokens to the browser.
 
 ## Imagery
 

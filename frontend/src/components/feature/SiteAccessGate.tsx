@@ -1,5 +1,6 @@
-﻿import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
+import { isSupabaseConfigured, requireSupabase } from '@/lib/supabase';
 
 interface SiteAccessState {
   maintenance_enabled: boolean;
@@ -15,6 +16,8 @@ const defaultState: SiteAccessState = {
   message: 'Enter the 6-digit preview code to view the work in progress.',
 };
 
+const unlockKey = 'com_preview_access';
+
 export default function SiteAccessGate({ children }: { children: ReactNode }) {
   const location = useLocation();
   const [state, setState] = useState<SiteAccessState>(defaultState);
@@ -25,24 +28,36 @@ export default function SiteAccessGate({ children }: { children: ReactNode }) {
   const isDashboard = location.pathname.startsWith('/dashboard');
 
   useEffect(() => {
-    if (isDashboard) {
+    if (isDashboard || !isSupabaseConfigured) {
       setLoading(false);
       return;
     }
 
     let active = true;
     setLoading(true);
-    fetch('/api/public/site-access', { credentials: 'include' })
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error('Site access unavailable')))
-      .then((payload: SiteAccessState) => {
-        if (active) setState(payload);
-      })
-      .catch(() => {
+    const client = requireSupabase();
+
+    void (async () => {
+      try {
+        const { data } = await client
+          .from('public_site_access_settings')
+          .select('maintenance_enabled,title,message')
+          .eq('id', 1)
+          .maybeSingle();
+        if (!active) return;
+        const maintenance = Boolean(data?.maintenance_enabled);
+        setState({
+          maintenance_enabled: maintenance,
+          unlocked: !maintenance || window.localStorage.getItem(unlockKey) === '1',
+          title: data?.title || defaultState.title,
+          message: data?.message || defaultState.message,
+        });
+      } catch {
         if (active) setState(defaultState);
-      })
-      .finally(() => {
+      } finally {
         if (active) setLoading(false);
-      });
+      }
+    })();
 
     return () => {
       active = false;
@@ -52,8 +67,6 @@ export default function SiteAccessGate({ children }: { children: ReactNode }) {
   if (isDashboard) return <>{children}</>;
 
   if (loading) {
-    // A blank white screen on every page load looks broken. Show the brand
-    // mark and announce the wait for assistive technology instead.
     return (
       <div
         className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background-100"
@@ -78,15 +91,11 @@ export default function SiteAccessGate({ children }: { children: ReactNode }) {
     setError('');
 
     try {
-      const response = await fetch('/api/public/site-access', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin }),
-      });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || 'Invalid preview code.');
-      setState(payload);
+      const client = requireSupabase();
+      const { data, error: pinError } = await client.rpc('verify_site_preview_pin', { pin });
+      if (pinError || data !== true) throw new Error('Invalid preview code.');
+      window.localStorage.setItem(unlockKey, '1');
+      setState((current) => ({ ...current, unlocked: true }));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid preview code.');
     } finally {
@@ -129,4 +138,3 @@ export default function SiteAccessGate({ children }: { children: ReactNode }) {
     </main>
   );
 }
-

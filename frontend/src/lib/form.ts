@@ -1,14 +1,10 @@
-﻿export interface FormResult {
+import { requireSupabase, supabaseError } from './supabase';
+
+export interface FormResult {
   ok: boolean;
   message: string;
 }
 
-/**
- * Submits a marketing form to an internal API route.
- * Neon credentials must stay on the server, so the browser only posts to `/api/*`.
- * In local Vite development, where serverless API routes are not running, entries
- * are queued in localStorage so the UI can still be tested before Neon is connected.
- */
 export async function submitMarketingForm(
   form: HTMLFormElement,
   submitPath: string,
@@ -21,7 +17,6 @@ export async function submitMarketingForm(
   );
 
   if (hasHoneypotValue) {
-    // Looks like a bot: give the same generic feedback, but send nothing.
     return { ok: true, message: '' };
   }
 
@@ -35,50 +30,45 @@ export async function submitMarketingForm(
   });
 
   try {
-    const response = await fetch(submitPath, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (response.ok) {
-      return { ok: true, message: '' };
-    }
-
-    if (shouldQueueLocally(response.status)) {
-      queueLocally(submitPath, payload);
-      return { ok: true, message: '' };
-    }
-
-    const responseText = await response.text();
-    return { ok: false, message: responseText || 'We could not send that just now. Please try again.' };
-  } catch {
-    if (isLocalHost()) {
-      queueLocally(submitPath, payload);
-      return { ok: true, message: '' };
-    }
-
-    return { ok: false, message: 'Network error. Please check your connection and try again.' };
+    if (submitPath.includes('newsletter')) return submitNewsletter(payload);
+    return submitLead(payload);
+  } catch (err) {
+    return { ok: false, message: err instanceof Error ? err.message : 'We could not send that just now. Please try again.' };
   }
 }
 
-function shouldQueueLocally(status: number): boolean {
-  return isLocalHost() && (status === 404 || status === 503 || status === 501);
-}
+async function submitLead(payload: Record<string, string>): Promise<FormResult> {
+  const client = requireSupabase();
+  const email = payload.email || '';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false, message: 'Please enter a valid email address.' };
+  }
 
-function isLocalHost(): boolean {
-  return ['localhost', '127.0.0.1'].includes(window.location.hostname);
-}
-
-function queueLocally(submitPath: string, payload: Record<string, string>): void {
-  const key = 'kbc:pending-form-submissions';
-  const existing = window.localStorage.getItem(key);
-  const submissions = existing ? JSON.parse(existing) as unknown[] : [];
-  submissions.push({
-    submitPath,
-    payload,
-    createdAt: new Date().toISOString(),
+  const { error } = await client.from('lead_submissions').insert({
+    name: payload.name || payload.full_name || 'Website visitor',
+    email,
+    organisation: payload.organisation || payload.company || null,
+    interest: payload.interest || payload.programme || null,
+    message: payload.message || payload.notes || null,
+    source: payload.source || 'website',
   });
-  window.localStorage.setItem(key, JSON.stringify(submissions));
+
+  if (error) return { ok: false, message: supabaseError(error, 'We could not send that just now. Please try again.') };
+  return { ok: true, message: '' };
 }
 
+async function submitNewsletter(payload: Record<string, string>): Promise<FormResult> {
+  const client = requireSupabase();
+  const email = payload.email || '';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false, message: 'Please enter a valid email address.' };
+  }
+
+  const { error } = await client.from('newsletter_subscriptions').upsert({
+    email,
+    source: payload.source || 'website-newsletter',
+  }, { onConflict: 'email' });
+
+  if (error) return { ok: false, message: supabaseError(error, 'We could not subscribe that email just now.') };
+  return { ok: true, message: '' };
+}

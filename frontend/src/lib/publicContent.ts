@@ -1,10 +1,5 @@
-﻿import { useEffect, useRef, useState } from 'react';
-
-interface PublicContentPayload<T> {
-  resource: string;
-  items: T[];
-  item?: T | null;
-}
+import { useEffect, useRef, useState } from 'react';
+import { getPageSectionCopy, getPublicItems } from './supabaseContent';
 
 export function usePublicContent<T>(resource: string, fallback: T[] = []) {
   const fallbackRef = useRef(fallback);
@@ -19,11 +14,10 @@ export function usePublicContent<T>(resource: string, fallback: T[] = []) {
     let active = true;
     setLoading(true);
 
-    fetch(`/api/public/content?resource=${encodeURIComponent(resource)}`)
-      .then((response) => response.ok ? response.json() as Promise<PublicContentPayload<T>> : Promise.reject(new Error('Content unavailable')))
-      .then((payload) => {
+    getPublicItems<T>(resource)
+      .then((nextItems) => {
         if (!active) return;
-        setItems(payload.items?.length ? payload.items : fallbackRef.current);
+        setItems(nextItems.length ? nextItems : fallbackRef.current);
       })
       .catch(() => {
         if (active) setItems(fallbackRef.current);
@@ -46,42 +40,23 @@ interface PageSectionRow {
   published_value: string | null;
 }
 
-/**
- * Published editorial copy for a page, keyed as `"section.field"`.
- *
- * This is the read side of the CMS "Pages & Sections" resource. An editor edits
- * a draft in the dashboard, publishes it, and the published value replaces the
- * React default on the public page. Layout and component structure stay in
- * code; only copy moves into the CMS, which keeps the site editable without
- * turning every page into a rendered document.
- *
- * The public endpoint only returns `published_value` for visible rows, so
- * unpublished drafts are never served and the page keeps its built-in copy
- * until an editor publishes a replacement.
- */
 export function usePageCopy(pagePath: string): Record<string, string> {
   const [copy, setCopy] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let active = true;
 
-    fetch(`/api/public/content?resource=page-sections&page=${encodeURIComponent(pagePath)}`)
-      .then((response) =>
-        response.ok
-          ? (response.json() as Promise<{ items?: PageSectionRow[] }>)
-          : Promise.reject(new Error('Content unavailable')),
-      )
-      .then((payload) => {
+    getPageSectionCopy(pagePath)
+      .then((items: PageSectionRow[]) => {
         if (!active) return;
         const next: Record<string, string> = {};
-        for (const row of payload.items || []) {
+        for (const row of items) {
           const value = (row.published_value || '').trim();
           if (value) next[`${row.section_key}.${row.field_key}`] = value;
         }
         setCopy(next);
       })
       .catch(() => {
-        // The page keeps its built-in copy when the CMS is unreachable.
         if (active) setCopy({});
       });
 
@@ -93,10 +68,6 @@ export function usePageCopy(pagePath: string): Record<string, string> {
   return copy;
 }
 
-/**
- * Published CMS value for a field, or the supplied default when no published
- * value exists.
- */
 export function resolveCopy(
   copy: Record<string, string>,
   section: string,

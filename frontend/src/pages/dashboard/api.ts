@@ -1,4 +1,6 @@
-﻿export interface DashboardUser {
+import { requireSupabase, supabaseError } from '@/lib/supabase';
+
+export interface DashboardUser {
   id: string;
   email: string;
   username: string | null;
@@ -35,64 +37,112 @@ export interface OverviewPayload {
   recentLeads: DashboardLead[];
 }
 
-interface DashboardRequestOptions {
-  method?: string;
-  headers?: Record<string, string>;
-  body?: string;
+export async function login(identifier: string, password: string) {
+  const client = requireSupabase();
+  const email = identifier.trim();
+  if (!email.includes('@')) throw new Error('Use your dashboard email address to sign in.');
+
+  const { data, error } = await client.auth.signInWithPassword({ email, password });
+  if (error) throw new Error(supabaseError(error, 'Could not sign in.'));
+  if (!data.user) throw new Error('Could not sign in.');
+
+  return getCurrentUser();
 }
 
-export async function dashboardRequest<T>(path: string, options: DashboardRequestOptions = {}): Promise<T> {
-  const response = await fetch(path, {
-    ...options,
-    credentials: 'include',
-    headers: {
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-      ...(options.headers || {}),
-    },
-  });
+export async function getCurrentUser() {
+  const client = requireSupabase();
+  const { data, error } = await client.auth.getUser();
+  if (error || !data.user) throw new Error('Not signed in.');
 
-  const contentType = response.headers.get('content-type') || '';
-  const payload = contentType.includes('application/json') ? await response.json() : null;
+  const { data: profile, error: profileError } = await client
+    .from('dashboard_profiles')
+    .select('id,email,username,name,role,is_active')
+    .eq('id', data.user.id)
+    .maybeSingle();
 
-  if (!response.ok) {
-    const message = payload?.error || 'Dashboard request failed.';
-    throw new Error(message);
+  if (profileError) throw new Error(supabaseError(profileError, 'Could not load dashboard user.'));
+  if (profile && profile.is_active === false) throw new Error('Dashboard user is inactive.');
+
+  const metadata = data.user.user_metadata || {};
+  const user: DashboardUser = {
+    id: data.user.id,
+    email: profile?.email || data.user.email || '',
+    username: profile?.username || null,
+    name: profile?.name || String(metadata.name || data.user.email || 'Dashboard user'),
+    role: profile?.role || 'admin',
+  };
+
+  return { user };
+}
+
+export async function logout() {
+  const client = requireSupabase();
+  const { error } = await client.auth.signOut();
+  if (error) throw new Error(supabaseError(error, 'Could not sign out.'));
+  return { ok: true };
+}
+
+export async function getOverview(): Promise<OverviewPayload> {
+  const [leadsPayload, newslettersTotal] = await Promise.all([
+    getLeads(),
+    countRows('newsletter_subscriptions'),
+  ]);
+
+  return {
+    leads: leadsPayload.stats,
+    newsletters: { total: newslettersTotal },
+    recentLeads: leadsPayload.leads.slice(0, 6),
+  };
+}
+
+export async function getLeads(params: { status?: string; q?: string; unread?: boolean } = {}) {
+  const client = requireSupabase();
+  let query = client
+    .from('lead_submissions')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (params.status) query = query.eq('status', params.status);
+  if (params.unread) query = query.eq('is_read', false);
+  if (params.q?.trim()) {
+    const q = params.q.trim().replaceAll(',', ' ');
+    query = query.or(`name.ilike.%${q}%,email.ilike.%${q}%,organisation.ilike.%${q}%,message.ilike.%${q}%`);
   }
 
-  return payload as T;
+  const { data, error } = await query;
+  if (error) throw new Error(supabaseError(error, 'Could not load leads.'));
+
+  const leads = (data || []) as DashboardLead[];
+  return { leads, stats: getLeadStats(leads) };
 }
 
-export function login(identifier: string, password: string) {
-  return dashboardRequest<{ user: DashboardUser }>('/api/dashboard/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ identifier, password }),
-  });
+export async function updateLead(payload: Partial<DashboardLead> & { id: string }) {
+  const client = requireSupabase();
+  const { id, ...changes } = payload;
+  const { data, error } = await client
+    .from('lead_submissions')
+    .update({ ...changes, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select('*')
+    .single();
+
+  if (error) throw new Error(supabaseError(error, 'Could not update lead.'));
+  return { lead: data as DashboardLead };
 }
 
-export function getCurrentUser() {
-  return dashboardRequest<{ user: DashboardUser }>('/api/dashboard/auth/me');
+async function countRows(table: string) {
+  const client = requireSupabase();
+  const { count, error } = await client.from(table).select('*', { count: 'exact', head: true });
+  if (error) throw new Error(supabaseError(error, `Could not count ${table}.`));
+  return count || 0;
 }
 
-export function logout() {
-  return dashboardRequest<{ ok: boolean }>('/api/dashboard/auth/logout', { method: 'POST' });
-}
-
-export function getOverview() {
-  return dashboardRequest<OverviewPayload>('/api/dashboard/overview');
-}
-
-export function getLeads(params: { status?: string; q?: string; unread?: boolean } = {}) {
-  const search = new URLSearchParams();
-  if (params.status) search.set('status', params.status);
-  if (params.q) search.set('q', params.q);
-  if (params.unread) search.set('unread', '1');
-  const query = search.toString();
-  return dashboardRequest<{ leads: DashboardLead[]; stats: LeadStats }>(`/api/dashboard/leads${query ? `?${query}` : ''}`);
-}
-
-export function updateLead(payload: Partial<DashboardLead> & { id: string }) {
-  return dashboardRequest<{ lead: DashboardLead }>('/api/dashboard/leads', {
-    method: 'PATCH',
-    body: JSON.stringify(payload),
-  });
+function getLeadStats(leads: DashboardLead[]): LeadStats {
+  const now = Date.now();
+  return {
+    total: leads.length,
+    new_count: leads.filter((lead) => lead.status === 'new').length,
+    unread_count: leads.filter((lead) => !lead.is_read).length,
+    due_followups: leads.filter((lead) => lead.follow_up_at && new Date(lead.follow_up_at).getTime() <= now).length,
+  };
 }

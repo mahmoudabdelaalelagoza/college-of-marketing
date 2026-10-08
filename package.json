@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
+    "@supabase/supabase-js": "^2.117.3",
     "react": "^19.1.2",
     "react-dom": "^19.1.2",
     "react-router-dom": "^7.6.3"

@@ -1,4 +1,4 @@
-﻿import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/base/Button';
 import { login } from '../api';
@@ -56,7 +56,7 @@ export default function DashboardLogin() {
             <form onSubmit={handleSubmit} className="mt-8 space-y-5">
               <div>
                 <label htmlFor="identifier" className="mb-2 block text-sm font-medium text-foreground-700">
-                  Email or username
+                  Email
                 </label>
                 <input
                   id="identifier"

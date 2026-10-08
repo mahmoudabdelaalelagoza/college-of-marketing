@@ -1,8 +1,9 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '@/components/base/Button';
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import { upcomingEvents as fallbackEvents, dateFormatter } from './data';
+import { getPublicItems } from '@/lib/supabaseContent';
 
 interface RenderEvent {
   dateISO: string;
@@ -36,10 +37,9 @@ export default function EventsUpcomingEvents() {
 
   useEffect(() => {
     let active = true;
-    fetch('/api/public/content?resource=events')
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error('Events unavailable')))
-      .then((payload: { items?: PublicEventRow[] }) => {
-        const synced = (payload.items || []).map(mapPublicEvent).filter(isUpcoming);
+    getPublicItems<PublicEventRow>('events')
+      .then((items) => {
+        const synced = items.map(mapPublicEvent).filter(isUpcoming);
         if (active && synced.length > 0) setEvents(synced);
       })
       .catch(() => undefined);

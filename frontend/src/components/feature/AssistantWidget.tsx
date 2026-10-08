@@ -1,9 +1,11 @@
-﻿import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocation } from 'react-router-dom';
+import { isSupabaseConfigured, requireSupabase } from '@/lib/supabase';
 
 interface PublicAssistantSettings {
   assistant_name: string;
   welcome_message: string;
+  fallback_message: string;
   is_enabled: boolean;
 }
 
@@ -22,23 +24,30 @@ export default function AssistantWidget() {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    if (!isSupabaseConfigured) return;
     let active = true;
-    fetch('/api/public/assistant')
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error('Assistant unavailable')))
-      .then((payload: { settings?: PublicAssistantSettings }) => {
-        if (!active || !payload.settings?.is_enabled) return;
-        setSettings(payload.settings);
-        setMessages([{ role: 'assistant', text: payload.settings.welcome_message || 'Hi, how can I help?' }]);
-      })
-      .catch(() => undefined);
+
+    void (async () => {
+      try {
+        const { data } = await requireSupabase()
+          .from('assistant_settings')
+          .select('assistant_name,welcome_message,fallback_message,is_enabled')
+          .eq('id', 1)
+          .maybeSingle();
+        if (!active || !data?.is_enabled) return;
+        const nextSettings = data as PublicAssistantSettings;
+        setSettings(nextSettings);
+        setMessages([{ role: 'assistant', text: nextSettings.welcome_message || 'Hi, how can I help?' }]);
+      } catch {
+        // Assistant stays hidden when Supabase is unavailable.
+      }
+    })();
 
     return () => {
       active = false;
     };
   }, []);
 
-  // Only auto-scroll the transcript when the panel is actually open.
-  // Running this on mount scrolled the whole page down to the widget.
   useEffect(() => {
     if (!open) return;
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -54,20 +63,14 @@ export default function AssistantWidget() {
     setQuestion('');
     setLoading(true);
     setMessages((current) => [...current, { role: 'user', text: trimmed }]);
-    try {
-      const response = await fetch('/api/public/assistant', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: trimmed }),
-      });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || 'Assistant unavailable.');
-      setMessages((current) => [...current, { role: 'assistant', text: payload.answer || 'I could not answer that yet.' }]);
-    } catch (error) {
-      setMessages((current) => [...current, { role: 'assistant', text: error instanceof Error ? error.message : 'Assistant unavailable.' }]);
-    } finally {
-      setLoading(false);
-    }
+    setMessages((current) => [
+      ...current,
+      {
+        role: 'assistant',
+        text: settings.fallback_message || 'Please book a consultation and our team will help you.',
+      },
+    ]);
+    setLoading(false);
   };
 
   return (
