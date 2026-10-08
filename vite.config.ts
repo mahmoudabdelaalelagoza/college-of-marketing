@@ -1,4 +1,4 @@
-﻿import { defineConfig, type Plugin } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "node:path";
 import { existsSync, readFileSync } from "node:fs";
@@ -33,7 +33,7 @@ export default defineConfig({
   base,
   build: {
     sourcemap: isPreview,
-    outDir: "../out",
+    outDir: "../dist",
     emptyOutDir: true,
   },
   resolve: {
@@ -137,7 +137,4 @@ function loadLocalEnv() {
     process.env[key] = rest.join("=").trim().replace(/^"|"$/g, "");
   }
 }
-
-
-
 
