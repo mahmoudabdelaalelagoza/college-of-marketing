@@ -95,7 +95,7 @@ export default function ProgrammeComparison() {
                     </span>
                   </div>
 
-                  <h3 className="mt-8 font-heading text-[clamp(1.8rem,2.6vw,2.4rem)] font-semibold leading-tight">
+                  <h3 className="mt-8 font-heading text-[clamp(1.8rem,2.6vw,2.4rem)] font-semibold leading-tight text-background-50">
                     {panel.title}
                   </h3>
                   <p className="mt-4 font-heading text-lg leading-snug text-accent-300/90">
