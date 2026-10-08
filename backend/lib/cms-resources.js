@@ -1,4 +1,4 @@
-﻿export const cmsResources = {
+export const cmsResources = {
   articles: {
     table: 'articles',
     label: 'Articles',
@@ -36,6 +36,7 @@
     fields: ['title', 'slug', 'summary', 'description', 'image_url', 'image_alt', 'starts_at', 'ends_at', 'timezone', 'location', 'organiser', 'category', 'classifications', 'format', 'sales_status', 'price_label', 'cta_label', 'cta_url', 'source_url', 'display_order', 'is_active', 'is_featured'],
     search: ['title', 'slug', 'summary', 'location', 'organiser', 'category', 'format'],
     json: ['classifications'],
+    jsonArrays: ['classifications'],
     booleans: ['is_active', 'is_featured'],
     numbers: ['display_order'],
   },
@@ -46,6 +47,7 @@
     fields: ['slug', 'title', 'category', 'duration', 'format', 'owner', 'audience', 'summary', 'focus_list', 'detail', 'icon', 'image_url', 'display_order', 'is_active'],
     search: ['slug', 'title', 'category', 'owner', 'audience', 'summary'],
     json: ['focus_list', 'detail'],
+    jsonArrays: ['focus_list'],
     booleans: ['is_active'],
     numbers: ['display_order'],
   },
@@ -56,6 +58,7 @@
     fields: ['name', 'initials', 'role_title', 'affiliation', 'specialties', 'biography', 'image_url', 'link_url', 'display_order', 'is_active'],
     search: ['name', 'role_title', 'affiliation', 'specialties', 'biography'],
     json: ['specialties'],
+    jsonArrays: ['specialties'],
     booleans: ['is_active'],
     numbers: ['display_order'],
   },
@@ -117,4 +120,66 @@ export function getResource(name) {
 
 export function listResources() {
   return Object.entries(cmsResources).map(([id, config]) => ({ id, label: config.label }));
+}
+
+/**
+ * Explicit whitelist of the columns each resource may expose on the public,
+ * unauthenticated content endpoint.
+ *
+ * The public handler must never use `select *`. Doing so previously leaked:
+ *   - `page_content_sections.draft_value`, i.e. unpublished editorial drafts
+ *     that an editor has saved but not yet published;
+ *   - moderation and audit columns such as `moderation_notes`, `consent`,
+ *     `updated_by`, `created_at` and `updated_at`.
+ *
+ * Keeping the whitelist here (rather than in the handler) means adding a column
+ * to a resource for dashboard use can never silently publish it.
+ */
+const PUBLIC_FIELDS = {
+  articles: ['title', 'slug', 'excerpt', 'content', 'category', 'author', 'image_url', 'image_alt', 'read_minutes', 'published_at', 'display_order'],
+  'case-studies': ['title', 'slug', 'sector', 'client_name', 'headline', 'summary', 'challenge', 'approach', 'outcome', 'metrics', 'image_url', 'image_alt', 'display_order'],
+  testimonials: ['name', 'programme', 'reviewer_type', 'photo_url', 'review_text', 'display_order'],
+  events: ['title', 'slug', 'summary', 'description', 'image_url', 'image_alt', 'starts_at', 'ends_at', 'timezone', 'location', 'organiser', 'category', 'classifications', 'format', 'sales_status', 'price_label', 'cta_label', 'cta_url', 'source_url', 'display_order'],
+  'short-courses': ['slug', 'title', 'category', 'duration', 'format', 'owner', 'audience', 'summary', 'focus_list', 'detail', 'icon', 'image_url', 'display_order'],
+  people: ['name', 'initials', 'role_title', 'affiliation', 'specialties', 'biography', 'image_url', 'link_url', 'display_order'],
+  partners: ['name', 'slug', 'kind', 'description', 'icon', 'image_url', 'link_url', 'display_order'],
+  media: ['title', 'url', 'alt_text'],
+  // `draft_value` is deliberately excluded: only published copy is public.
+  'page-sections': ['page_path', 'section_key', 'field_key', 'field_type', 'published_value'],
+  'knowledge-sources': ['title', 'kind', 'reference_path', 'content'],
+  settings: ['setting_key', 'setting_value', 'setting_type'],
+};
+
+/**
+ * Columns safe to expose publicly for a resource. Falls back to an empty list so
+ * that a newly added resource is never served publicly until it has been
+ * reviewed and explicitly whitelisted here.
+ */
+export function getPublicFieldsByName(name) {
+  return PUBLIC_FIELDS[name] || [];
+}
+
+/**
+ * jsonb columns the frontend contracts to receive as arrays.
+ *
+ * `jsonb` only guarantees "some JSON value", so a record written by hand or by
+ * an older importer can legally hold `{}`, a bare string or a number even when
+ * the column is declared `jsonb NOT NULL DEFAULT '[]'`. A real row did exactly
+ * that: `people_profiles.specialties` was `{}`, which reached the browser and
+ * would break any consumer calling `.map()` on it.
+ *
+ * Listing a column here lets the public endpoint coerce the value on the way
+ * out, so the shape a client sees is decided by this file rather than by
+ * whatever happens to be in the database. Columns that are legitimately objects
+ * (`case_studies.metrics`, `short_courses.detail`) are deliberately absent and
+ * are passed through untouched.
+ */
+const PUBLIC_JSON_ARRAYS = {
+  'short-courses': ['focus_list'],
+  people: ['specialties'],
+  events: ['classifications'],
+};
+
+export function getPublicJsonArrayFieldsByName(name) {
+  return PUBLIC_JSON_ARRAYS[name] || [];
 }

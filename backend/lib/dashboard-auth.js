@@ -14,9 +14,7 @@ export function getSql() {
   return neon(process.env.DATABASE_URL);
 }
 
-export function clean(value, max = 1000) {
-  return typeof value === 'string' ? value.trim().slice(0, max) : '';
-}
+export { clean } from './http.js';
 
 export async function readJson(req) {
   if (req.body && typeof req.body === 'object') return req.body;
@@ -59,13 +57,7 @@ export function hashRequestKey(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
 }
 
-export function getRequestIp(req) {
-  const forwarded = req.headers?.['x-forwarded-for'];
-  if (typeof forwarded === 'string' && forwarded.length > 0) {
-    return forwarded.split(',')[0].trim();
-  }
-  return req.socket?.remoteAddress || 'unknown';
-}
+export { getRequestIp } from './http.js';
 
 export function createSessionToken(user) {
   const payload = {
@@ -117,11 +109,7 @@ export function clearSessionCookie(res) {
   res.setHeader('Set-Cookie', `${SESSION_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`);
 }
 
-export function sendJson(res, status, payload) {
-  res.statusCode = status;
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  res.end(JSON.stringify(payload));
-}
+export { sendJson } from './http.js';
 
 export function methodNotAllowed(res, allowed = 'GET') {
   res.setHeader('Allow', allowed);

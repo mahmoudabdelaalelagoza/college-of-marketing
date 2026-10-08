@@ -7,6 +7,7 @@ const navItems = [
   { label: 'Overview', to: '/dashboard', icon: 'ri-dashboard-line', end: true },
   { label: 'Leads', to: '/dashboard/leads', icon: 'ri-inbox-line' },
   { label: 'Smart Assistant', to: '/dashboard/assistant', icon: 'ri-sparkling-2-line' },
+  { label: 'Maintenance', to: '/dashboard/site-access', icon: 'ri-lock-password-line' },
 ];
 
 export default function DashboardLayout() {
@@ -132,5 +133,6 @@ export default function DashboardLayout() {
     </div>
   );
 }
+
 
 

@@ -1,12 +1,14 @@
-﻿import Eyebrow from '@/components/base/Eyebrow';
+import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import { usePublicContent } from '@/lib/publicContent';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 interface TestimonialCard {
   quote: string;
   name: string;
   role: string;
-  image: string;
+  image: string | null;
+  seed: string;
 }
 
 interface TestimonialRow {
@@ -17,36 +19,25 @@ interface TestimonialRow {
   review_text: string;
 }
 
-const fallbackTestimonials: TestimonialCard[] = [
-  {
-    quote:
-      'The programme gave me a way of thinking, not just a set of tactics. I can now explain the commercial reasoning behind a campaign and get decisions agreed far more quickly.',
-    name: 'Amelia Hart',
-    role: 'Marketing Executive - Level 4',
-    image:
-      'https://readdy.ai/api/search-image?query=Professional%20portrait%20of%20a%20confident%20British%20female%20marketing%20professional%20in%20her%20late%20twenties%2C%20natural%20window%20light%2C%20neutral%20studio%20background%2C%20editorial%20business%20photography%2C%20warm%20muted%20tones&width=320&height=320&seq=kbc-testimonial-amelia-01&orientation=squarish',
-  },
-  {
-    quote:
-      'I moved from delivering campaigns to setting the direction for a team. The strategy, budgeting and leadership content mapped straight onto the decisions I was already facing.',
-    name: 'Daniel Okafor',
-    role: 'Marketing Manager - Level 6',
-    image:
-      'https://readdy.ai/api/search-image?query=Professional%20portrait%20of%20a%20confident%20British%20male%20marketing%20manager%20in%20his%20thirties%2C%20natural%20window%20light%2C%20neutral%20studio%20background%2C%20editorial%20business%20photography%2C%20warm%20muted%20tones&width=320&height=320&seq=kbc-testimonial-daniel-01&orientation=squarish',
-  },
-  {
-    quote:
-      'The outputs our team produced were genuinely useful. Learning sat alongside delivery, so the capability stayed in the business rather than in a folder.',
-    name: 'Priya Nair',
-    role: 'Head of Marketing, employer partner',
-    image:
-      'https://readdy.ai/api/search-image?query=Professional%20portrait%20of%20a%20confident%20British%20female%20head%20of%20marketing%20in%20her%20forties%2C%20natural%20window%20light%2C%20neutral%20studio%20background%2C%20editorial%20business%20photography%2C%20warm%20muted%20tones&width=320&height=320&seq=kbc-testimonial-priya-01&orientation=squarish',
-  },
-];
-
+/**
+ * Learner and employer testimonials.
+ *
+ * This section deliberately has no built-in fallback content. The public API
+ * only returns testimonials that an editor has marked approved *and* recorded
+ * consent for, so anything shown here is content the college has actually
+ * approved and is entitled to publish.
+ *
+ * There is therefore nothing to show until real, consented quotes exist. The
+ * section is hidden rather than filled with invented names and quotes, which
+ * would misrepresent the college and weaken trust in everything else on the
+ * page. Once approved testimonials are published in the dashboard the section
+ * appears automatically, with no code change.
+ */
 export default function Testimonials() {
   const { items: cmsTestimonials } = usePublicContent<TestimonialRow>('testimonials', []);
-  const testimonials = cmsTestimonials.length > 0 ? cmsTestimonials.map(mapTestimonial) : fallbackTestimonials;
+  const testimonials = cmsTestimonials.map(mapTestimonial);
+
+  if (testimonials.length === 0) return null;
 
   return (
     <section className="border-y border-background-300 bg-background-50 py-20 md:py-28">
@@ -68,11 +59,11 @@ export default function Testimonials() {
                 </blockquote>
                 <figcaption className="mt-7 flex items-center gap-3 border-t border-background-200 pt-6">
                   <span className="h-11 w-11 overflow-hidden rounded-full bg-background-200">
-                    <img
+                    <EditorialImage
                       src={item.image}
+                      seed={item.seed}
                       alt={`${item.name}, ${item.role}`}
-                      title={`${item.name} - ${item.role}`}
-                      className="h-full w-full object-top"
+                      className="h-full w-full object-cover"
                     />
                   </span>
                   <span>
@@ -93,7 +84,8 @@ function mapTestimonial(item: TestimonialRow): TestimonialCard {
   return {
     quote: item.review_text,
     name: item.name,
-    role: item.programme || item.reviewer_type || 'College of Marketing learner',
-    image: item.photo_url || '/brand/college-of-marketing-mark.png',
+    role: item.programme || item.reviewer_type || 'College of Marketing',
+    image: item.photo_url || null,
+    seed: item.name,
   };
 }

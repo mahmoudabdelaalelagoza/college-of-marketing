@@ -35,6 +35,7 @@ export const programmes = [
     to: '/college-of-marketing/marketing-executive-level-4',
     panel: level4.panelClass,
     image: level4.hero.image,
+    seed: level4.hero.seed,
   },
   {
     level: level6.level,
@@ -44,6 +45,7 @@ export const programmes = [
     to: '/college-of-marketing/marketing-manager-level-6',
     panel: level6.panelClass,
     image: level6.hero.image,
+    seed: level6.hero.seed,
   },
 ];
 

@@ -1,12 +1,14 @@
-﻿import Eyebrow from '@/components/base/Eyebrow';
+import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import { usePublicContent } from '@/lib/publicContent';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 interface CaseStudyCard {
   sector: string;
   title: string;
   copy: string;
-  image: string;
+  image: string | null;
+  seed: string;
 }
 
 interface CaseStudyRow {
@@ -18,33 +20,22 @@ interface CaseStudyRow {
   image_url: string | null;
 }
 
-const fallbackCaseStudies: CaseStudyCard[] = [
-  {
-    sector: 'Retail & e-commerce',
-    title: 'Rebuilding a customer insight routine',
-    copy: 'A Level 4 learner introduced a repeatable insight process, changing how the team framed campaigns and prioritised audiences.',
-    image:
-      'https://readdy.ai/api/search-image?query=Marketing%20team%20reviewing%20retail%20customer%20insight%20data%20on%20a%20warm%20wooden%20desk%2C%20printed%20charts%20and%20notes%2C%20editorial%20premium%20business%20photography%2C%20soft%20natural%20light%2C%20muted%20warm%20neutral%20tones&width=900&height=650&seq=kbc-case-retail-01&orientation=landscape',
-  },
-  {
-    sector: 'Professional services',
-    title: 'From campaign delivery to strategic planning',
-    copy: 'A Level 6 manager used the programme to build a commercial marketing plan, aligning budget and measures to firm-wide growth targets.',
-    image:
-      'https://readdy.ai/api/search-image?query=Marketing%20manager%20presenting%20a%20strategic%20plan%20to%20senior%20colleagues%20in%20a%20bright%20meeting%20room%2C%20editorial%20premium%20business%20photography%2C%20soft%20natural%20light%2C%20muted%20warm%20neutral%20tones&width=900&height=650&seq=kbc-case-services-01&orientation=landscape',
-  },
-  {
-    sector: 'Manufacturing',
-    title: 'Building a measurement framework',
-    copy: 'A marketing team adopted a shared measurement framework, giving the business clearer visibility of channel performance and return.',
-    image:
-      'https://readdy.ai/api/search-image?query=Marketing%20analyst%20reviewing%20channel%20performance%20charts%20on%20a%20screen%20with%20colleagues%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20warm%20neutral%20tones&width=900&height=650&seq=kbc-case-manufacturing-01&orientation=landscape',
-  },
-];
-
+/**
+ * Published case studies.
+ *
+ * Like testimonials, this section has no built-in fallback content. Inventing
+ * employer case studies would imply named clients and measurable results that
+ * the college has not verified, which is misleading in a regulated sector and
+ * risky under consumer protection rules.
+ *
+ * The section is hidden until an editor publishes real, approved case studies,
+ * at which point it appears automatically.
+ */
 export default function CaseStudies() {
   const { items: cmsCaseStudies } = usePublicContent<CaseStudyRow>('case-studies', []);
-  const caseStudies = cmsCaseStudies.length > 0 ? cmsCaseStudies.map(mapCaseStudy) : fallbackCaseStudies;
+  const caseStudies = cmsCaseStudies.map(mapCaseStudy);
+
+  if (caseStudies.length === 0) return null;
 
   return (
     <section id="case-studies" className="container-wide scroll-mt-[148px] py-20 md:py-28">
@@ -68,11 +59,11 @@ export default function CaseStudies() {
           <Reveal key={item.title} delay={index * 90}>
             <article className="group flex h-full flex-col">
               <div className="relative aspect-[4/3] overflow-hidden rounded-[14px] border border-background-300 bg-background-100">
-                <img
+                <EditorialImage
                   src={item.image}
+                  seed={item.seed}
                   alt={item.title}
-                  title={`${item.sector} - ${item.title}`}
-                  className="h-full w-full object-top transition-transform duration-500 group-hover:scale-[1.025]"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]"
                 />
               </div>
               <p className="eyebrow mt-6 text-foreground-500">{item.sector}</p>
@@ -90,7 +81,10 @@ function mapCaseStudy(item: CaseStudyRow): CaseStudyCard {
   return {
     sector: item.sector || 'College of Marketing',
     title: item.title,
-    copy: item.summary || item.headline || item.outcome || 'Read how marketing capability was applied in the workplace.',
-    image: item.image_url || '/brand/college-of-marketing-logo.png',
+    // Only fall back to copy the editor actually wrote; never synthesise a
+    // description, which could overstate what the employer achieved.
+    copy: item.summary || item.headline || item.outcome || '',
+    image: item.image_url || null,
+    seed: item.title,
   };
 }

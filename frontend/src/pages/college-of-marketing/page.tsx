@@ -1,5 +1,6 @@
-﻿import type { CollegeNavItem } from '@/components/feature/CollegeNav';
-import CollegeShell from './components/CollegeShell';
+import type { CollegeNavItem } from '@/components/feature/CollegeNav';
+import PageShell from '@/components/feature/PageShell';
+import { useSeo } from '@/lib/seo';
 import Hero from './components/Hero';
 import TrustStrip from './components/TrustStrip';
 import Positioning from './components/Positioning';
@@ -73,13 +74,17 @@ const structuredData = {
 };
 
 export default function CollegeOfMarketing() {
+  useSeo({
+    title: 'College of Marketing | Funded Professional Pathways',
+    description:
+      'Funded marketing apprenticeships at Kent Business College: Marketing Executive Level 4 and Marketing Manager Level 6, aligned to the CIM. Check eligibility and apply.',
+    path: '/',
+    jsonLd: structuredData,
+  });
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-      <CollegeShell navItems={navItems} spyIds={spyIds}>
+      <PageShell navItems={navItems} spyIds={spyIds}>
         <Hero />
         <TrustStrip />
         <Positioning />
@@ -97,7 +102,7 @@ export default function CollegeOfMarketing() {
         <CommunityGallery />
         <FAQ />
         <FinalCTA />
-      </CollegeShell>
+      </PageShell>
     </>
   );
 }

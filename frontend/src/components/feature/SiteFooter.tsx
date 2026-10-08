@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const columns = [
   {
@@ -24,7 +24,7 @@ const columns = [
     links: [
       { label: 'Employer value', to: '/employers' },
       { label: 'Workforce consultation', to: '/employers#consultation' },
-      { label: 'Case studies', to: '/college-of-marketing#case-studies' },
+      { label: 'Consultation booking', to: '/consultation' },
       { label: 'FAQ', to: '/faq' },
     ],
   },
@@ -84,7 +84,7 @@ export default function SiteFooter() {
         </div>
 
         <div className="mt-14 flex flex-col gap-4 border-t border-background-50/12 pt-8 text-xs text-background-50/55 sm:flex-row sm:items-center sm:justify-between">
-          <p>(c) {new Date().getFullYear()} Kent Business College - College of Marketing. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Kent Business College · College of Marketing. All rights reserved.</p>
           <div className="flex flex-wrap gap-5">
             <Link to="/privacy" className="transition-colors hover:text-background-50">
               Privacy

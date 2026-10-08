@@ -1,5 +1,6 @@
 ﻿import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 const capabilityLabels = [
   'Customer insight',
@@ -28,11 +29,10 @@ export default function Positioning() {
 
           <Reveal delay={120}>
             <div className="mt-10 overflow-hidden rounded-[14px] border border-background-300">
-              <img
-                src="https://readdy.ai/api/search-image?query=Marketing%20professionals%20reviewing%20customer%20insight%20research%20with%20printed%20charts%20and%20notes%20on%20a%20warm%20wooden%20table%2C%20editorial%20premium%20business%20photography%2C%20soft%20natural%20light%2C%20muted%20cream%20and%20warm%20neutral%20tones%2C%20calm%20professional%20atmosphere&width=1100&height=800&seq=kbc-positioning-insight-01&orientation=landscape"
+              <EditorialImage
                 alt="Marketing professionals reviewing customer insight research"
-                title="Customer insight and marketing capability"
-                className="h-[300px] w-full object-top md:h-[360px]"
+                seed="kbc-positioning-insight-01"
+                className="h-[300px] w-full object-cover md:h-[360px]"
               />
             </div>
           </Reveal>

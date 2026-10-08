@@ -46,10 +46,15 @@ No database required at this stage.
 - Enquiry / consultation / application submissions use the platform Form capability (no Supabase table needed).
 
 ## 5. Backend / Third-party Integration Plan
-- Database: not needed now (static content + client-side eligibility guidance). Temporary/no demo data required.
-- Forms: platform Form capability for employer workforce consultation and programme application/enquiry.
-- Shopify / Stripe / Toss / PayPal: not needed now.
-- Resend: not needed now.
+- Database: Neon Postgres, accessed server-side only via `DATABASE_URL`.
+- Forms: employer workforce consultation, programme enquiry and consultation
+  booking all post to the internal API routes.
+- Dashboard: session-cookie staff area at `/dashboard` for leads, CMS resources,
+  the assistant and the maintenance gate.
+- Eventbrite: optional events sync, disabled when no token is configured.
+- Assistant: optional, disabled when no `ASSISTANT_API_KEY` is configured.
+- Payments: not implemented; paid standalone course pricing is confirmed during
+  consultation rather than taken online.
 
 ## 6. Development Phase Plan
 

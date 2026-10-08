@@ -1,6 +1,7 @@
 ﻿import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import LeadForm from '@/components/feature/LeadForm';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 const valueProps = [
   {
@@ -61,11 +62,10 @@ export default function EmployerValue() {
         <div className="lg:col-span-6">
           <Reveal delay={120}>
             <div className="mb-6 overflow-hidden rounded-[16px] border border-background-300">
-              <img
-                src="https://readdy.ai/api/search-image?query=HR%20and%20marketing%20leaders%20discussing%20workforce%20development%20around%20a%20conference%20table%20with%20a%20laptop%20and%20printed%20plans%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20maroon%20and%20cream%20tones%2C%20collaborative%20professional%20atmosphere&width=900&height=560&seq=kbc-employer-01&orientation=landscape"
+              <EditorialImage
                 alt="Employers discussing workforce marketing capability"
-                title="Workforce marketing capability - College of Marketing"
-                className="h-[240px] w-full object-top md:h-[280px]"
+                seed="kbc-employer-01"
+                className="h-[240px] w-full object-cover md:h-[280px]"
               />
             </div>
             <div className="rounded-[16px] border border-background-300 bg-background-100 p-8 md:p-10">

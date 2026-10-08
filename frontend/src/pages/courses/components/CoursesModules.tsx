@@ -85,7 +85,7 @@ export default function CoursesModules() {
                         ))}
                       </div>
                       <Button to={module.enrolTo} variant="link" className="mt-auto self-start pt-6" arrow>
-                        Enroll Now
+                        Enrol now
                       </Button>
                     </article>
                   </Reveal>
@@ -127,7 +127,7 @@ export default function CoursesModules() {
                       <span>{course.owner || 'College of Marketing'}</span>
                     </div>
                     <Button to={`/consultation?course=${encodeURIComponent(course.title)}`} variant="link" className="mt-auto self-start pt-6" arrow>
-                      Enroll Now
+                      Enrol now
                     </Button>
                   </article>
                 </Reveal>

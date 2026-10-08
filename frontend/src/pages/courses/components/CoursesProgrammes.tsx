@@ -2,6 +2,7 @@
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import { programmes } from './data';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 export default function CoursesProgrammes() {
   return (
@@ -26,11 +27,11 @@ export default function CoursesProgrammes() {
                 <Reveal key={programme.level} delay={index * 100}>
                   <article className="group flex h-full flex-col overflow-hidden rounded-[18px] border border-background-300 bg-background-50">
                     <div className="relative aspect-[16/10] overflow-hidden">
-                      <img
+                      <EditorialImage
                         src={programme.image}
+                        seed={programme.seed}
                         alt={programme.tag}
-                        title={`${programme.level} - ${programme.tag}`}
-                        className="h-full w-full object-top transition-transform duration-500 group-hover:scale-[1.03]"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                       />
                       <span className="absolute left-5 top-5 rounded-full bg-background-50/90 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground-800 backdrop-blur">
                         {programme.level}

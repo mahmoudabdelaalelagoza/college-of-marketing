@@ -3,6 +3,7 @@ import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import HeroPattern from '@/components/feature/HeroPattern';
 import type { ProgrammeConfig } from '../types';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 interface ProgrammeHeroProps {
   config: ProgrammeConfig;
@@ -63,11 +64,11 @@ export default function ProgrammeHero({ config }: ProgrammeHeroProps) {
             <Reveal delay={200}>
               <div className="relative mx-auto max-w-[420px]">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-[16px] border border-background-50/12">
-                  <img
+                  <EditorialImage
                     src={hero.image}
+                    seed={hero.seed}
                     alt={hero.imageAlt}
-                    title={`${config.shortTitle} - ${level}`}
-                    className="h-full w-full object-top"
+                    className="h-full w-full object-cover"
                   />
                 </div>
                 <div className="absolute -bottom-4 left-14 hidden rounded-full bg-accent-500 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-950 lg:block">

@@ -121,6 +121,15 @@
     color: oklch(var(--foreground-950));
   }
 
+  /* Every interactive element needs a visible keyboard focus ring. Many of the
+     site components remove the default outline, so the ring is defined once
+     here rather than repeated in each component. */
+  :focus-visible {
+    outline: 2px solid oklch(var(--accent-600));
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
   ::selection {
     background-color: oklch(var(--accent-500) / 0.55);
     color: oklch(var(--primary-950));
@@ -134,7 +143,9 @@
     *::before,
     *::after {
       animation-duration: 0.001ms !important;
+      animation-delay: 0s !important;
       transition-duration: 0.001ms !important;
+      transition-delay: 0s !important;
     }
   }
 }
@@ -203,15 +214,19 @@
     overflow: hidden;
   }
 
-  /* Premium gold laurel call-to-action surface (image backed) */
+  /* Premium gold laurel call-to-action surface.
+   *
+   * The original design hot-linked a texture image from a third-party host that
+   * no longer resolves, which left every primary button rendering as a bare
+   * gradient. The surface is now drawn entirely in CSS from the brand palette,
+   * so it cannot break and costs no extra request. */
   .btn-laurel {
     position: relative;
     overflow: hidden;
-    background-image: url('https://storage.helloreaddy.io/project_files/2bf8cdc6-1a15-4b79-9a18-33dbbbb9eec3/b89dfce7-5a12-438b-ada6-f36150263f63_compressed_ChatGPT-Image-Sep-13-2026-03_10_03-PM.webp'),
+    background-image:
+      radial-gradient(120% 160% at 12% 0%, rgba(255, 255, 255, 0.55), transparent 46%),
+      radial-gradient(90% 140% at 88% 100%, rgba(122, 79, 6, 0.28), transparent 52%),
       linear-gradient(180deg, #fdeeb0 0%, #f8d869 30%, #eebe34 64%, #cf9711 100%);
-    background-size: cover, 100% 100%;
-    background-position: center center, center center;
-    background-repeat: no-repeat, no-repeat;
     border: 1px solid #bf8709;
     color: oklch(var(--primary-950));
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
@@ -221,7 +236,6 @@
   }
 
   .btn-laurel:hover {
-    background-size: cover, 100% 100%;
     filter: brightness(1.05) saturate(1.04);
     box-shadow:
       inset 0 1px 1px rgba(255, 255, 255, 0.8),

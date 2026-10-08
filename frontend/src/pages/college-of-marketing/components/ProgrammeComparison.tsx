@@ -1,6 +1,7 @@
 ﻿import Button from '@/components/base/Button';
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 interface PanelData {
   level: string;
@@ -12,7 +13,8 @@ interface PanelData {
   cim: string;
   to: string;
   panelClass: string;
-  image: string;
+  image: string | null;
+  seed: string;
 }
 
 const panels: PanelData[] = [
@@ -33,8 +35,8 @@ const panels: PanelData[] = [
     cim: 'CIM Level 4 Certificate pathway',
     to: '/college-of-marketing/marketing-executive-level-4',
     panelClass: 'panel-level4',
-    image:
-      'https://readdy.ai/api/search-image?query=Marketing%20executive%20working%20at%20a%20bright%20desk%20with%20campaign%20planning%20materials%20a%20laptop%20and%20printed%20charts%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20maroon%20and%20cream%20tones%2C%20focused%20professional%20atmosphere&width=800&height=500&seq=kbc-panel-l4-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-panel-l4-01',
   },
   {
     level: 'Level 6',
@@ -54,8 +56,8 @@ const panels: PanelData[] = [
     cim: 'CIM Level 6 Diploma pathway',
     to: '/college-of-marketing/marketing-manager-level-6',
     panelClass: 'panel-level6',
-    image:
-      'https://readdy.ai/api/search-image?query=Marketing%20manager%20leading%20a%20strategic%20planning%20session%20with%20a%20team%20in%20a%20modern%20boardroom%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20warm%20neutral%20tones%2C%20leadership%20atmosphere&width=800&height=500&seq=kbc-panel-l6-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-panel-l6-01',
   },
 ];
 
@@ -129,11 +131,11 @@ export default function ProgrammeComparison() {
                   </div>
 
                   <div className="mt-6 overflow-hidden rounded-[12px] border border-background-50/15">
-                    <img
+                    <EditorialImage
                       src={panel.image}
+                      seed={panel.seed}
                       alt={panel.title}
-                      title={`${panel.title} - College of Marketing`}
-                      className="h-40 w-full object-top"
+                      className="h-40 w-full object-cover"
                     />
                   </div>
 

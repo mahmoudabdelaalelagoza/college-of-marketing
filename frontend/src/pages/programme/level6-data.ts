@@ -3,14 +3,15 @@
 export const level6: ProgrammeConfig = {
   level: 'Level 6',
   shortTitle: 'Marketing Manager',
+  path: '/college-of-marketing/marketing-manager-level-6',
   panelClass: 'panel-level6',
   hero: {
     eyebrow: 'Marketing Manager · Level 6',
     title: 'Move from campaign delivery to',
     highlight: 'strategic marketing leadership.',
     copy: 'A funded apprenticeship for experienced marketers leading strategy, budgets, teams and agencies. Develop commercial intelligence, brand and customer value leadership, performance management and responsible AI - and prove marketing\u2019s contribution to business outcomes.',
-    image:
-      'https://readdy.ai/api/search-image?query=Experienced%20marketing%20leader%20presenting%20strategy%20to%20a%20small%20team%20in%20a%20bright%20modern%20meeting%20room%20with%20a%20glass%20wall%20and%20printed%20charts%2C%20warm%20natural%20light%2C%20editorial%20premium%20business%20photography%2C%20muted%20maroon%20cream%20and%20gold%20tones%2C%20calm%20confident%20leadership%20atmosphere&width=900&height=1120&seq=kbc-level6-hero-01&orientation=portrait',
+    image: null,
+    seed: 'kbc-level6-hero-01',
     imageAlt: 'Marketing Manager presenting strategy to their team at Kent Business College',
     facts: [
       { label: 'Duration', value: 'Around 24 months' },

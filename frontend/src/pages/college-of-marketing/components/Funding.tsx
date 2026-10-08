@@ -1,6 +1,7 @@
 ﻿import Button from '@/components/base/Button';
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 const facts = [
   { label: 'Levy funded', value: 'Employers with an apprenticeship service account can use levy funds to cover training and assessment.' },
@@ -56,11 +57,10 @@ export default function Funding() {
           <div className="lg:col-span-5">
             <Reveal delay={120}>
               <div className="mb-6 overflow-hidden rounded-[14px] border border-background-300">
-                <img
-                  src="https://readdy.ai/api/search-image?query=Professional%20in%20a%20modern%20British%20office%20reviewing%20apprenticeship%20funding%20documents%20and%20a%20laptop%20with%20a%20colleague%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20maroon%20and%20cream%20tones%2C%20reassuring%20calm%20atmosphere&width=900&height=700&seq=kbc-funding-01&orientation=landscape"
+                <EditorialImage
                   alt="Reviewing apprenticeship funding guidance"
-                  title="Apprenticeship funding guidance - College of Marketing"
-                  className="h-[240px] w-full object-top md:h-[280px]"
+                  seed="kbc-funding-01"
+                  className="h-[240px] w-full object-cover md:h-[280px]"
                 />
               </div>
               <div className="rounded-[16px] border border-background-300 bg-background-50 p-8">

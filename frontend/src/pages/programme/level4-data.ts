@@ -3,14 +3,15 @@
 export const level4: ProgrammeConfig = {
   level: 'Level 4',
   shortTitle: 'Marketing Executive',
+  path: '/college-of-marketing/marketing-executive-level-4',
   panelClass: 'panel-level4',
   hero: {
     eyebrow: 'Marketing Executive · Level 4',
     title: 'Build the professional and',
     highlight: 'digital foundations of marketing.',
     copy: 'A funded apprenticeship for marketers who plan and deliver activity. Develop customer insight, campaign planning, digital channels, data literacy and professional practice - and connect every decision to measurable business outcomes.',
-    image:
-      'https://readdy.ai/api/search-image?query=Confident%20young%20marketing%20professional%20planning%20a%20digital%20campaign%20at%20a%20clean%20desk%20with%20printed%20analytics%20charts%20and%20a%20laptop%2C%20warm%20natural%20window%20light%2C%20editorial%20premium%20business%20photography%2C%20muted%20maroon%20cream%20and%20gold%20tones%2C%20calm%20focused%20atmosphere%2C%20shallow%20depth%20of%20field&width=900&height=1120&seq=kbc-level4-hero-01&orientation=portrait',
+    image: null,
+    seed: 'kbc-level4-hero-01',
     imageAlt: 'Marketing Executive planning a digital campaign at Kent Business College',
     facts: [
       { label: 'Duration', value: 'Around 18 months' },

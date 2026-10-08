@@ -1,5 +1,6 @@
 ﻿import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 const outputs = [
   {
@@ -46,11 +47,10 @@ export default function WorkplaceOutputs() {
 
           <Reveal delay={120}>
             <div className="mt-10 overflow-hidden rounded-[14px] border border-background-300">
-              <img
-                src="https://readdy.ai/api/search-image?query=Marketing%20professional%20presenting%20campaign%20performance%20results%20to%20colleagues%20in%20a%20modern%20British%20office%2C%20warm%20natural%20light%2C%20editorial%20premium%20business%20photography%2C%20muted%20warm%20neutral%20tones%2C%20calm%20confident%20atmosphere&width=900&height=1080&seq=kbc-outputs-presenting-01&orientation=portrait"
+              <EditorialImage
                 alt="Marketing professional presenting campaign performance results"
-                title="Workplace marketing outputs"
-                className="h-[360px] w-full object-top md:h-[440px]"
+                seed="kbc-outputs-presenting-01"
+                className="h-[360px] w-full object-cover md:h-[440px]"
               />
             </div>
           </Reveal>

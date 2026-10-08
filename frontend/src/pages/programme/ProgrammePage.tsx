@@ -1,5 +1,7 @@
 ﻿import type { CollegeNavItem } from '@/components/feature/CollegeNav';
-import CollegeShell from '@/pages/college-of-marketing/components/CollegeShell';
+import PageShell from '@/components/feature/PageShell';
+import { useSeo } from '@/lib/seo';
+import { useMemo } from 'react';
 import type { ProgrammeConfig } from './types';
 import ProgrammeHero from './components/ProgrammeHero';
 import ProgrammeKeyFacts from './components/ProgrammeKeyFacts';
@@ -38,7 +40,9 @@ export default function ProgrammePage({ config }: ProgrammePageProps) {
     { id: 'college', label: 'College overview', href: '/college-of-marketing' },
   ];
 
-  const structuredData = {
+  // Memoised so the reference is stable; useSeo keys its effect on it and
+  // would otherwise rewrite the JSON-LD script on every render.
+  const structuredData = useMemo(() => ({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -61,15 +65,18 @@ export default function ProgrammePage({ config }: ProgrammePageProps) {
         })),
       },
     ],
-  };
+  }), [config]);
+
+  useSeo({
+    title: `${config.shortTitle} ${config.level} Marketing Apprenticeship`,
+    description: config.hero.copy,
+    path: config.path,
+    jsonLd: structuredData,
+  });
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-      <CollegeShell navItems={navItems} spyIds={sectionIds}>
+      <PageShell navItems={navItems} spyIds={sectionIds}>
         <ProgrammeHero config={config} />
         <ProgrammeKeyFacts config={config} />
         <ProgrammeOverview config={config} />
@@ -80,7 +87,7 @@ export default function ProgrammePage({ config }: ProgrammePageProps) {
         <ProgrammeFunding config={config} />
         <ProgrammeFAQ config={config} />
         <ProgrammeCTA config={config} />
-      </CollegeShell>
+      </PageShell>
     </>
   );
 }

@@ -2,6 +2,7 @@
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import HeroPattern from '@/components/feature/HeroPattern';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 const pathway = [
   { key: 'Level 4', value: 'Marketing Executive' },
@@ -66,11 +67,10 @@ export default function Hero() {
             <div className="relative mx-auto max-w-[420px]">
               <Reveal delay={160}>
                 <div className="hero-float-image relative aspect-[4/5] overflow-hidden rounded-[16px] border border-background-50/12">
-                  <img
-                    src="https://readdy.ai/api/search-image?query=Professional%20British%20marketing%20team%20in%20a%20bright%20strategy%20session%2C%20discussing%20campaign%20plans%20around%20a%20table%20with%20printed%20charts%2C%20warm%20natural%20window%20light%2C%20editorial%20premium%20business%20photography%2C%20muted%20maroon%20and%20cream%20tones%2C%20calm%20confident%20atmosphere&width=900&height=1120&seq=kbc-hero-strategy-01&orientation=portrait"
+                  <EditorialImage
                     alt="Marketing professionals collaborating in a strategy session at Kent Business College"
-                    title="College of Marketing strategy session"
-                    className="h-full w-full object-top"
+                    seed="kbc-hero-strategy-01"
+                    className="h-full w-full object-cover"
                   />
                 </div>
               </Reveal>

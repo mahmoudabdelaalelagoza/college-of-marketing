@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react';
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 interface Capability {
   key: string;
@@ -9,7 +10,8 @@ interface Capability {
   headline: string;
   copy: string;
   subs: string[];
-  image: string;
+  image: string | null;
+  seed: string;
 }
 
 const capabilities: Capability[] = [
@@ -20,8 +22,8 @@ const capabilities: Capability[] = [
     headline: 'Understand the market before deciding the message.',
     copy: 'Develop research, segmentation and customer understanding practices that help marketers identify meaningful needs, priorities and opportunities.',
     subs: ['Research framing', 'Insight synthesis', 'Segmentation', 'Ethical practice'],
-    image:
-      'https://readdy.ai/api/search-image?query=Marketing%20professionals%20gathered%20around%20a%20table%20analysing%20customer%20insight%20research%20with%20printed%20charts%20personas%20and%20sticky%20notes%20on%20a%20warm%20wooden%20surface%2C%20editorial%20premium%20business%20photography%2C%20soft%20natural%20window%20light%2C%20muted%20maroon%20cream%20and%20gold%20tones%2C%20calm%20collaborative%20atmosphere&width=900&height=600&seq=kbc-cap-insight-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-cap-insight-01',
   },
   {
     key: 'Brand and proposition',
@@ -30,8 +32,8 @@ const capabilities: Capability[] = [
     headline: 'Shape propositions people recognise, trust and choose.',
     copy: 'Build brands and offers with clarity and consistency, connecting positioning, promise and creative direction to real customer value.',
     subs: ['Positioning', 'Value proposition', 'Brand architecture', 'Creative direction'],
-    image:
-      'https://readdy.ai/api/search-image?query=Creative%20marketing%20team%20developing%20a%20brand%20proposition%20with%20moodboards%20colour%20swatches%20and%20typography%20samples%20spread%20across%20a%20bright%20studio%20table%2C%20editorial%20premium%20business%20photography%2C%20soft%20natural%20light%2C%20muted%20warm%20neutral%20tones%2C%20energetic%20collaborative%20atmosphere&width=900&height=600&seq=kbc-cap-brand-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-cap-brand-01',
   },
   {
     key: 'Digital growth',
@@ -40,8 +42,8 @@ const capabilities: Capability[] = [
     headline: 'Design journeys that acquire, convert and retain.',
     copy: 'Plan content, channels and experiences that move customers through a considered journey, balancing reach, relevance and return.',
     subs: ['Channel strategy', 'Content and search', 'Paid and owned media', 'Conversion journeys'],
-    image:
-      'https://readdy.ai/api/search-image?query=Digital%20marketer%20reviewing%20social%20media%20analytics%20and%20campaign%20performance%20dashboards%20on%20a%20laptop%20and%20tablet%20in%20a%20modern%20office%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20maroon%20and%20cream%20tones%2C%20focused%20confident%20atmosphere&width=900&height=600&seq=kbc-cap-digital-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-cap-digital-01',
   },
   {
     key: 'Data, AI and measurement',
@@ -50,8 +52,8 @@ const capabilities: Capability[] = [
     headline: 'Measure what matters and use AI responsibly.',
     copy: 'Turn data into decisions with measurement frameworks, testing discipline and a responsible approach to AI enabled marketing practice.',
     subs: ['Measurement frameworks', 'Analytics literacy', 'Testing and optimisation', 'Responsible AI'],
-    image:
-      'https://readdy.ai/api/search-image?query=Marketing%20analyst%20working%20with%20data%20visualisation%20charts%20and%20an%20AI%20dashboard%20on%20a%20large%20screen%20while%20colleagues%20discuss%20results%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20warm%20neutral%20tones%2C%20calm%20analytical%20atmosphere&width=900&height=600&seq=kbc-cap-data-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-cap-data-01',
   },
   {
     key: 'Strategy and leadership',
@@ -60,8 +62,8 @@ const capabilities: Capability[] = [
     headline: 'Connect marketing decisions to commercial outcomes.',
     copy: 'Set direction, influence stakeholders and lead teams and agencies with a clear commercial rationale behind every marketing choice.',
     subs: ['Market and commercial analysis', 'Planning and budgeting', 'Stakeholder influence', 'Team and agency leadership'],
-    image:
-      'https://readdy.ai/api/search-image?query=Marketing%20director%20presenting%20a%20commercial%20strategy%20to%20a%20leadership%20team%20in%20a%20bright%20boardroom%20standing%20beside%20a%20screen%20with%20growth%20charts%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20maroon%20and%20gold%20tones%2C%20confident%20professional%20atmosphere&width=900&height=600&seq=kbc-cap-strategy-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-cap-strategy-01',
   },
 ];
 
@@ -125,11 +127,11 @@ export default function CapabilitySystem() {
             <div className="relative h-full overflow-hidden rounded-[16px] border border-background-300 bg-background-50 p-8 md:p-12">
               <div key={current.key} className="animate-fade-in">
                 <div className="relative mb-8 aspect-[16/7] overflow-hidden rounded-[12px] border border-background-300">
-                  <img
+                  <EditorialImage
                     src={current.image}
+                    seed={current.seed}
                     alt={current.title}
-                    title={`${current.title} - College of Marketing`}
-                    className="h-full w-full object-top"
+                    className="h-full w-full object-cover"
                   />
                 </div>
                 <span className="font-heading text-5xl font-semibold text-background-300">

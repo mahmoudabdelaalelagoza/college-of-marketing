@@ -37,8 +37,11 @@ export default function AssistantWidget() {
     };
   }, []);
 
+  // Only auto-scroll the transcript when the panel is actually open.
+  // Running this on mount scrolled the whole page down to the widget.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!open) return;
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [messages, open]);
 
   if (location.pathname.startsWith('/dashboard') || !settings) return null;

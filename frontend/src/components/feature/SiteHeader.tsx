@@ -69,6 +69,27 @@ export default function SiteHeader() {
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
+  // Escape must dismiss menus for keyboard and screen reader users, and the
+  // mobile panel must not leave the page scrollable behind it.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setOpenMenu(null);
+      setMobileOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [mobileOpen]);
+
   const dropdown = (group: NavGroup) => (
     <div className="relative" key={group.label} onMouseLeave={() => setOpenMenu(null)}>
       <button
@@ -78,6 +99,7 @@ export default function SiteHeader() {
         onClick={() => setOpenMenu(openMenu === group.label ? null : group.label)}
         className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-foreground-800 transition-colors hover:text-primary-800"
         aria-expanded={openMenu === group.label}
+        aria-haspopup="true"
       >
         {group.label}
         <i
@@ -115,6 +137,7 @@ export default function SiteHeader() {
         onClick={() => setOpenMenu(openMenu === 'Programmes' ? null : 'Programmes')}
         className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-foreground-800 transition-colors hover:text-primary-800"
         aria-expanded={openMenu === 'Programmes'}
+        aria-haspopup="true"
       >
         Programmes
         <i
@@ -229,14 +252,19 @@ export default function SiteHeader() {
           type="button"
           className="flex h-10 w-10 items-center justify-center rounded-md text-foreground-900 lg:hidden"
           onClick={() => setMobileOpen((v) => !v)}
-          aria-label="Toggle navigation"
+          aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-navigation"
         >
           <i className={mobileOpen ? 'ri-close-line text-2xl' : 'ri-menu-line text-2xl'} />
         </button>
       </div>
 
       {mobileOpen && (
-        <div className="border-b border-background-300 bg-background-50 lg:hidden">
+        <div
+          id="mobile-navigation"
+          className="border-b border-background-300 bg-background-50 lg:hidden"
+        >
           <div className="container-wide flex flex-col py-4">
             {[...programmeItems, ...simpleLinks, ...moreGroup.items].map((item) => (
               <Link

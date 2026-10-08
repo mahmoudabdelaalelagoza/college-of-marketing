@@ -1,38 +1,60 @@
-﻿import { neon } from '@neondatabase/serverless';
-
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { neon } from '@neondatabase/serverless';
+import {
+  clean,
+  clientKey,
+  isHoneypotTripped,
+  isRateLimited,
+  isValidEmail,
+  parseBody,
+  sendJson,
+} from '../lib/http.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
-    return res.status(405).send('Method not allowed');
+    return sendJson(res, 405, { error: 'Method not allowed' });
+  }
+
+  const body = parseBody(req);
+  if (!body) {
+    return sendJson(res, 400, { error: 'Malformed request.' });
+  }
+
+  // The browser strips the honeypot before posting, so it is only ever filled
+  // in by a bot. Report success so the sender gets no useful signal.
+  if (isHoneypotTripped(body)) {
+    return sendJson(res, 201, { ok: true });
+  }
+
+  if (isRateLimited(`leads:${clientKey(req)}`)) {
+    return sendJson(res, 429, { error: 'Too many submissions. Please try again shortly.' });
+  }
+
+  const name = clean(body.name, 200);
+  const email = clean(body.email, 320);
+  const organisation = clean(body.organisation, 200);
+  const interest = clean(body.interest, 200);
+  const message = clean(body.message, 2000);
+  const source = clean(body.source, 80) || 'website';
+
+  if (!name || !isValidEmail(email)) {
+    return sendJson(res, 400, { error: 'Please provide a valid name and email address.' });
   }
 
   if (!process.env.DATABASE_URL) {
-    return res.status(503).send('DATABASE_URL is not configured yet.');
+    return sendJson(res, 503, { error: 'Enquiries are not available at the moment.' });
   }
 
-  const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
-  const name = clean(body.name);
-  const email = clean(body.email);
-  const organisation = clean(body.organisation);
-  const interest = clean(body.interest);
-  const message = clean(body.message);
-  const source = clean(body.source) || 'website';
-
-  if (!name || !emailPattern.test(email)) {
-    return res.status(400).send('Please provide a valid name and email address.');
+  try {
+    const sql = neon(process.env.DATABASE_URL);
+    await sql`
+      insert into lead_submissions (name, email, organisation, interest, message, source)
+      values (${name}, ${email}, ${organisation || null}, ${interest || null}, ${message || null}, ${source})
+    `;
+  } catch (error) {
+    console.error('lead_submissions insert failed', error);
+    return sendJson(res, 500, { error: 'We could not save your enquiry. Please try again.' });
   }
 
-  const sql = neon(process.env.DATABASE_URL);
-  await sql`
-    insert into lead_submissions (name, email, organisation, interest, message, source)
-    values (${name}, ${email}, ${organisation || null}, ${interest || null}, ${message || null}, ${source})
-  `;
-
-  return res.status(201).json({ ok: true });
-}
-
-function clean(value) {
-  return typeof value === 'string' ? value.trim().slice(0, 1000) : '';
+  return sendJson(res, 201, { ok: true });
 }

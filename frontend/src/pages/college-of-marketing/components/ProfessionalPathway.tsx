@@ -1,27 +1,28 @@
 ﻿import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 const steps = [
   {
     tag: 'Entry',
     title: 'Marketing Executive - Level 4',
     copy: 'Build the professional and digital foundations, with a route to the CIM Level 4 Certificate.',
-    image:
-      'https://readdy.ai/api/search-image?query=Early%20career%20marketing%20professional%20collaborating%20with%20colleagues%20on%20a%20campaign%20plan%20at%20a%20shared%20desk%20with%20laptops%20and%20printed%20briefs%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20cream%20and%20maroon%20tones%2C%20bright%20hopeful%20atmosphere&width=700&height=500&seq=kbc-pathway-l4-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-pathway-l4-01',
   },
   {
     tag: 'Progression',
     title: 'Marketing Manager - Level 6',
     copy: 'Move into strategic leadership, commercial accountability and the CIM Level 6 Diploma pathway.',
-    image:
-      'https://readdy.ai/api/search-image?query=Confident%20marketing%20manager%20leading%20a%20strategy%20workshop%20with%20a%20diverse%20team%20around%20a%20whiteboard%20covered%20in%20campaign%20ideas%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20warm%20neutral%20tones%2C%20collaborative%20leadership%20atmosphere&width=700&height=500&seq=kbc-pathway-l6-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-pathway-l6-01',
   },
   {
     tag: 'Continuing',
     title: 'Professional development',
     copy: 'Sustain your practice through CIM membership, continuing professional development and specialisms.',
-    image:
-      'https://readdy.ai/api/search-image?query=Experienced%20marketing%20professionals%20networking%20and%20exchanging%20ideas%20at%20a%20bright%20professional%20development%20event%20holding%20coffee%20cups%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20gold%20and%20cream%20tones%2C%20lively%20community%20atmosphere&width=700&height=500&seq=kbc-pathway-cpd-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-pathway-cpd-01',
   },
 ];
 
@@ -64,11 +65,11 @@ export default function ProfessionalPathway() {
                       {step.copy}
                     </p>
                     <div className="mt-5 overflow-hidden rounded-[12px] border border-background-300">
-                      <img
+                      <EditorialImage
                         src={step.image}
+                        seed={step.seed}
                         alt={step.title}
-                        title={`${step.title} - College of Marketing`}
-                        className="h-40 w-full object-top"
+                        className="h-40 w-full object-cover"
                       />
                     </div>
                   </div>

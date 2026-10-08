@@ -414,3 +414,18 @@ create index if not exists assistant_chat_logs_request_created_at_idx
 create index if not exists assistant_chat_logs_created_at_idx
   on assistant_chat_logs (created_at desc);
 
+
+create table if not exists site_access_settings (
+  id integer primary key default 1 check (id = 1),
+  maintenance_enabled boolean not null default false,
+  preview_pin_hash text,
+  title text not null default 'Website under construction',
+  message text not null default 'We are preparing the College of Marketing website. Enter the 6-digit preview code to view the work in progress.',
+  updated_by uuid references dashboard_users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+insert into site_access_settings (id)
+values (1)
+on conflict (id) do nothing;

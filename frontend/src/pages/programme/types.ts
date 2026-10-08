@@ -50,13 +50,16 @@ export interface FaqItem {
 export interface ProgrammeConfig {
   level: string;
   shortTitle: string;
+  /** Absolute site path, used for canonical URLs. */
+  path: string;
   panelClass: string;
   hero: {
     eyebrow: string;
     title: string;
     highlight: string;
     copy: string;
-    image: string;
+    image: string | null;
+    seed: string;
     imageAlt: string;
     facts: HeroFact[];
   };

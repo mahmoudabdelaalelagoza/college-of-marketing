@@ -11,7 +11,9 @@
     "content-check": "node scripts/content-check.mjs",
     "lint": "eslint frontend/src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit --project tsconfig.app.json",
-    "admin:create": "node scripts/create-dashboard-admin.mjs"
+    "admin:create": "node scripts/create-dashboard-admin.mjs",
+    "db:apply": "node scripts/apply-schema.mjs",
+    "db:seed-demo": "node scripts/seed-demo-content.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

@@ -28,8 +28,12 @@ export default function ConsultationBooking() {
     [],
   );
 
-  const defaultInterest = selectedCourse && selectedProgramme
-    ? `${selectedProgramme}: ${selectedCourse}`
+  // Short-course links arrive as ?course=X on their own, while programme
+  // module links send both. Pre-select whichever is present.
+  const defaultInterest = selectedCourse
+    ? selectedProgramme
+      ? `${selectedProgramme}: ${selectedCourse}`
+      : selectedCourse
     : '';
 
   const fieldCls = 'w-full rounded-[10px] border border-background-300 bg-background-50 px-4 py-3 text-sm text-foreground-900 placeholder:text-foreground-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-400';

@@ -1,6 +1,7 @@
 ﻿import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import HeroPattern from '@/components/feature/HeroPattern';
+import EditorialImage from '@/components/feature/EditorialImage';
 
 const stages = [
   {
@@ -28,18 +29,18 @@ const stages = [
 const socialMoments = [
   {
     caption: 'Creating social content',
-    image:
-      'https://readdy.ai/api/search-image?query=Marketing%20team%20filming%20a%20social%20media%20video%20with%20a%20ring%20light%20and%20smartphone%20in%20a%20bright%20creative%20studio%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20warm%20tones%2C%20energetic%20creative%20atmosphere&width=700&height=480&seq=kbc-os-social-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-os-social-01',
   },
   {
     caption: 'Campaign launch events',
-    image:
-      'https://readdy.ai/api/search-image?query=Launch%20event%20for%20a%20new%20marketing%20campaign%20with%20a%20crowd%20of%20engaged%20professionals%20and%20branded%20screens%2C%20editorial%20premium%20business%20photography%2C%20warm%20ambient%20light%2C%20muted%20maroon%20and%20gold%20tones%2C%20celebratory%20lively%20atmosphere&width=700&height=480&seq=kbc-os-launch-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-os-launch-01',
   },
   {
     caption: 'Networking & community',
-    image:
-      'https://readdy.ai/api/search-image?query=Diverse%20group%20of%20marketing%20students%20and%20professionals%20networking%20and%20laughing%20together%20at%20a%20college%20open%20evening%2C%20editorial%20premium%20business%20photography%2C%20warm%20natural%20light%2C%20muted%20cream%20and%20warm%20neutral%20tones%2C%20vibrant%20community%20atmosphere&width=700&height=480&seq=kbc-os-network-01&orientation=landscape',
+    image: null,
+    seed: 'kbc-os-network-01',
   },
 ];
 
@@ -95,11 +96,11 @@ export default function WorkplaceOS() {
               key={item.caption}
               className="group relative overflow-hidden rounded-[12px] border border-background-50/15"
             >
-              <img
+              <EditorialImage
                 src={item.image}
+                seed={item.seed}
                 alt={item.caption}
-                title={`${item.caption} - College of Marketing`}
-                className="h-44 w-full object-top transition-transform duration-500 group-hover:scale-[1.02] md:h-52"
+                className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-[1.02] md:h-52"
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-primary-950/80 to-transparent px-4 pb-3 pt-8">
                 <span className="text-xs font-semibold text-background-50">{item.caption}</span>
