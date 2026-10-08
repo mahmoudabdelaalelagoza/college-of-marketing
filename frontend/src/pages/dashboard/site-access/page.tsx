@@ -35,7 +35,8 @@ export default function DashboardSiteAccess() {
 
   const handleSave = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const pin = String(form.get('preview_pin') || '').trim();
 
     setSaving(true);
@@ -53,7 +54,7 @@ export default function DashboardSiteAccess() {
       });
       setSettings(payload.settings);
       setNotice('Site access settings saved. Visitors will need the current preview code for any protected page.');
-      const pinInput = event.currentTarget.elements.namedItem('preview_pin') as HTMLInputElement | null;
+      const pinInput = formElement.elements.namedItem('preview_pin') as HTMLInputElement | null;
       if (pinInput) pinInput.value = '';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save settings.');
