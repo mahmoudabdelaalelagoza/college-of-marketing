@@ -1,4 +1,4 @@
-﻿export interface HeroFact {
+export interface HeroFact {
   label: string;
   value: string;
 }
@@ -111,7 +111,6 @@ export interface ProgrammeConfig {
     body: string;
     bullets: string[];
     formId: string;
-    submitAddr: string;
     submitLabel: string;
     successMessage: string;
   };

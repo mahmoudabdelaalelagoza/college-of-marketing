@@ -1,4 +1,4 @@
-﻿import Eyebrow from '@/components/base/Eyebrow';
+import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import LeadForm from '@/components/feature/LeadForm';
 
@@ -35,8 +35,7 @@ export default function EmployersConsultation() {
                   <div className="rounded-[16px] border border-background-300 bg-background-100 p-8 md:p-10">
                     <LeadForm
                       formId="employer-consultation-form"
-                      submitAddr="/api/leads"
-                      submitLabel="Book a consultation"
+                     submitLabel="Book a consultation"
                       successMessage="Thank you. Our employer team will contact you to arrange your workforce consultation."
                     />
                   </div>

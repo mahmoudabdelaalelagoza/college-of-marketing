@@ -1,4 +1,4 @@
-﻿import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import Button from '@/components/base/Button';
 import { submitMarketingForm } from '@/lib/form';
 
@@ -16,7 +16,7 @@ export default function NewsletterForm() {
     setStatus('submitting');
     setFormError('');
 
-    const result = await submitMarketingForm(form, '/api/newsletter');
+    const result = await submitMarketingForm(form, 'newsletter');
     if (result.ok) {
       setStatus('success');
       form.reset();
@@ -80,4 +80,3 @@ export default function NewsletterForm() {
     </form>
   );
 }
-

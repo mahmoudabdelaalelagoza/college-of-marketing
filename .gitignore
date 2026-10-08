@@ -1,4 +1,4 @@
-﻿node_modules
+node_modules
 out
 dist
 .claude
@@ -7,3 +7,6 @@ CLAUDE.md
 .env.*
 !.env.example
 *.tsbuildinfo
+.qa/
+*.log
+*.zip

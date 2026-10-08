@@ -1,4 +1,4 @@
-﻿import { useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Button from '@/components/base/Button';
 import Eyebrow from '@/components/base/Eyebrow';
@@ -45,7 +45,7 @@ export default function ConsultationBooking() {
     setStatus('submitting');
     setFormError('');
 
-    const result = await submitMarketingForm(form, '/api/leads');
+    const result = await submitMarketingForm(form);
     if (result.ok) {
       setStatus('success');
       form.reset();

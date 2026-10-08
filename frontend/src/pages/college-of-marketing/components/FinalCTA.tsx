@@ -1,4 +1,4 @@
-﻿import Eyebrow from '@/components/base/Eyebrow';
+import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import HeroPattern from '@/components/feature/HeroPattern';
 import LeadForm from '@/components/feature/LeadForm';
@@ -39,8 +39,7 @@ export default function FinalCTA() {
             <Reveal delay={120}>
               <LeadForm
                 formId="programme-application-form"
-                submitAddr="/api/leads"
-                submitLabel="Submit enquiry"
+               submitLabel="Submit enquiry"
                 tone="dark"
                 successMessage="Thank you. We have received your enquiry and will be in touch shortly."
               />

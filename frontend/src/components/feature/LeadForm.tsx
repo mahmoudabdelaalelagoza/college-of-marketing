@@ -1,10 +1,10 @@
-﻿import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import Button from '@/components/base/Button';
 import { submitMarketingForm } from '@/lib/form';
 
 interface LeadFormProps {
   formId: string;
-  submitAddr?: string;
+
   submitLabel: string;
   tone?: 'light' | 'dark';
   showOrganisation?: boolean;
@@ -20,7 +20,7 @@ const interestOptions = [
 
 export default function LeadForm({
   formId,
-  submitAddr,
+
   submitLabel,
   tone = 'light',
   showOrganisation = true,
@@ -41,7 +41,7 @@ export default function LeadForm({
     setStatus('submitting');
     setFormError('');
 
-    const result = await submitMarketingForm(form, submitAddr ?? '/api/leads');
+    const result = await submitMarketingForm(form);
     if (result.ok) {
       setStatus('success');
       form.reset();
@@ -185,4 +185,3 @@ export default function LeadForm({
     </form>
   );
 }
-

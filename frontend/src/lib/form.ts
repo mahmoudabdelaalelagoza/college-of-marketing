@@ -1,13 +1,15 @@
-import { requireSupabase, supabaseError } from './supabase';
-
 export interface FormResult {
   ok: boolean;
   message: string;
 }
 
+import { requireSupabase, supabaseError } from './supabase';
+
+type MarketingFormKind = 'lead' | 'newsletter';
+
 export async function submitMarketingForm(
   form: HTMLFormElement,
-  submitPath: string,
+  kind: MarketingFormKind = 'lead',
 ): Promise<FormResult> {
   const formData = new FormData(form);
 
@@ -30,7 +32,7 @@ export async function submitMarketingForm(
   });
 
   try {
-    if (submitPath.includes('newsletter')) return submitNewsletter(payload);
+    if (kind === 'newsletter') return submitNewsletter(payload);
     return submitLead(payload);
   } catch (err) {
     return { ok: false, message: err instanceof Error ? err.message : 'We could not send that just now. Please try again.' };

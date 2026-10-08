@@ -1,4 +1,4 @@
-﻿import Eyebrow from '@/components/base/Eyebrow';
+import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import LeadForm from '@/components/feature/LeadForm';
 import EditorialImage from '@/components/feature/EditorialImage';
@@ -79,8 +79,7 @@ export default function EmployerValue() {
               <div className="mt-8">
                 <LeadForm
                   formId="employer-consultation-form"
-                  submitAddr="/api/leads"
-                  submitLabel="Book a consultation"
+                 submitLabel="Book a consultation"
                   successMessage="Thank you. Our employer team will contact you to arrange your workforce consultation."
                 />
               </div>

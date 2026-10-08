@@ -1,4 +1,4 @@
-﻿import type { ProgrammeConfig } from './types';
+import type { ProgrammeConfig } from './types';
 
 export const level4: ProgrammeConfig = {
   level: 'Level 4',
@@ -206,8 +206,7 @@ export const level4: ProgrammeConfig = {
       'A clear view of the next steps to start',
     ],
     formId: 'level4-programme-enquiry',
-    submitAddr: '/api/leads',
-    submitLabel: 'Submit enquiry',
+   submitLabel: 'Submit enquiry',
     successMessage: 'Thank you. We have received your enquiry and will be in touch about the Level 4 programme.',
   },
   related: {

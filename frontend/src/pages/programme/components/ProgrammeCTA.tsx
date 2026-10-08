@@ -1,4 +1,4 @@
-﻿import Button from '@/components/base/Button';
+import Button from '@/components/base/Button';
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import HeroPattern from '@/components/feature/HeroPattern';
@@ -42,8 +42,7 @@ export default function ProgrammeCTA({ config }: ProgrammeCTAProps) {
             <Reveal delay={120}>
               <LeadForm
                 formId={cta.formId}
-                submitAddr={cta.submitAddr}
-                submitLabel={cta.submitLabel}
+               submitLabel={cta.submitLabel}
                 tone="dark"
                 successMessage={cta.successMessage}
               />

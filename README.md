@@ -17,13 +17,12 @@ frontend/
       feature/             Site shell, forms, assistant, editorial imagery
     hooks/                 useActiveSection scroll spy
     lib/                   Supabase client, form submission, public content, SEO
-    pages/<page>/          Route pages
-      components/          Page-specific section components
+    pages/<page>/          Route pages and page-specific sections
     router/                Route table and router entry
-backend/                   Legacy server handlers kept for reference
-api/                       Legacy Vercel-compatible wrappers
-scripts/                   Schema, seeding and content checks
-supabase/schema.sql        Supabase tables, RPC functions and RLS policies
+scripts/
+  content-check.mjs        Content quality guard used by npm run check
+supabase/
+  schema.sql               Tables, RPC functions and RLS policies
 ```
 
 When you want to edit a visible page section, start in:
@@ -50,6 +49,13 @@ npm run dev
 
 On Windows PowerShell, use `npm.cmd run dev` if script execution is disabled.
 
+Create `.env` from `.env.example` and set:
+
+```env
+VITE_SUPABASE_URL="https://YOUR_PROJECT.supabase.co"
+VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
+```
+
 ## Supabase Setup
 
 1. Create a Supabase project.
@@ -60,13 +66,6 @@ On Windows PowerShell, use `npm.cmd run dev` if script execution is disabled.
 ```sql
 insert into dashboard_profiles (id, email, name, role)
 values ('AUTH_USER_UUID', 'admin@example.com', 'Admin', 'admin');
-```
-
-5. Set frontend environment variables before building:
-
-```env
-VITE_SUPABASE_URL="https://YOUR_PROJECT.supabase.co"
-VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
 ```
 
 The public site can insert leads/newsletter rows and read only published CMS
