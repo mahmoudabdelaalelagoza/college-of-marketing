@@ -1,4 +1,4 @@
-﻿import Reveal from '@/components/base/Reveal';
+import Reveal from '@/components/base/Reveal';
 
 export default function AudienceRouter() {
   return (
@@ -46,7 +46,7 @@ export default function AudienceRouter() {
                   <i className="ri-team-line text-xl" />
                 </div>
                 <p className="eyebrow mt-8 text-accent-500">For employers</p>
-                <h3 className="mt-3 font-heading text-[clamp(1.5rem,2.2vw,2rem)] font-semibold leading-tight">
+                <h3 className="mt-3 font-heading text-[clamp(1.5rem,2.2vw,2rem)] font-semibold leading-tight text-background-50">
                   I am developing a marketing team
                 </h3>
                 <p className="mt-4 text-[15px] leading-relaxed text-background-50/70">
