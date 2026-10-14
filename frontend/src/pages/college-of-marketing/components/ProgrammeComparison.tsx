@@ -136,7 +136,7 @@ export default function ProgrammeComparison() {
                       src={panel.image}
                       seed={panel.seed}
                       alt={panel.title}
-                      className="h-40 w-full object-cover"
+                      className="h-60 w-full object-cover"
                     />
                   </div>
 
