@@ -38,13 +38,13 @@ export default function SiteFooter() {
           <div className="lg:col-span-2">
             <Link
               to="/"
-              className="inline-flex rounded-md border border-accent-400/25 bg-background-50 px-4 py-3 shadow-soft"
+              className="inline-flex"
               aria-label="College of Marketing home"
             >
               <img
-                src="/brand/college-of-marketing-logo.png"
+                src="/brand/college-of-marketing-footer-logo.png"
                 alt="College of Marketing"
-                className="h-16 w-auto max-w-[280px] object-contain md:h-20"
+                className="h-auto w-[240px] max-w-[70vw] object-contain sm:w-[280px] md:w-[320px]"
               />
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-background-50/65">
