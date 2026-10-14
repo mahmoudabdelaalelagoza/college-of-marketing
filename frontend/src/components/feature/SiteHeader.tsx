@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '@/components/base/Button';
 
@@ -91,7 +91,7 @@ export default function SiteHeader() {
   }, [mobileOpen]);
 
   const dropdown = (group: NavGroup) => (
-    <div className="relative" key={group.label} onMouseLeave={() => setOpenMenu(null)}>
+    <div className="relative -mb-2 pb-2" key={group.label} onMouseLeave={() => setOpenMenu(null)}>
       <button
         type="button"
         onMouseEnter={() => setOpenMenu(group.label)}
@@ -109,7 +109,7 @@ export default function SiteHeader() {
         />
       </button>
       {openMenu === group.label && (
-        <div className="absolute left-0 top-full mt-2 w-72 rounded-[14px] border border-background-300 bg-background-50 p-2 shadow-md">
+        <div className="absolute left-0 top-full w-72 rounded-[14px] border border-background-300 bg-background-50 p-2 shadow-md">
           {group.items.map((item) => (
             <Link
               key={item.to}
@@ -129,7 +129,7 @@ export default function SiteHeader() {
   );
 
   const programmesMenu = (
-    <div className="relative" onMouseLeave={() => setOpenMenu(null)}>
+    <div className="relative -mb-4 pb-4" onMouseLeave={() => setOpenMenu(null)}>
       <button
         type="button"
         onMouseEnter={() => setOpenMenu('Programmes')}
@@ -148,7 +148,7 @@ export default function SiteHeader() {
       </button>
 
       {openMenu === 'Programmes' && (
-        <div className="absolute left-1/2 top-full mt-4 w-[720px] -translate-x-1/2 rounded-[18px] border border-background-300 bg-background-50 p-4 shadow-menu">
+        <div className="absolute left-1/2 top-full w-[720px] -translate-x-1/2 rounded-[18px] border border-background-300 bg-background-50 p-4 shadow-menu">
           <div className="grid grid-cols-[0.9fr_1.4fr] gap-4">
             <div className="rounded-[14px] bg-primary-900 p-5 text-background-50">
               <p className="eyebrow text-accent-400">Programmes</p>
