@@ -70,14 +70,6 @@ export default function EmployerValue() {
                 className="h-[240px] w-full object-cover md:h-[280px]"
               />
             </div>
-            <div className="rounded-[16px] border border-background-300 bg-background-100 p-8 md:p-10">
-              <h3 className="font-heading text-2xl font-semibold leading-tight">
-                Book a workforce consultation
-              </h3>
-              <p className="mt-3 text-[15px] leading-relaxed text-foreground-600">
-                Tell us about your team, the capability you want to build and any development
-                priorities. We will suggest the most suitable pathway.
-              </p>
               <div className="mt-8">
                 <LeadForm
                   formId="employer-consultation-form"
@@ -85,7 +77,6 @@ export default function EmployerValue() {
                   successMessage="Thank you. Our employer team will contact you to arrange your workforce consultation."
                 />
               </div>
-            </div>
           </Reveal>
         </div>
       </div>

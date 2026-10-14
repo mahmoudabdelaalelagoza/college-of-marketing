@@ -190,7 +190,7 @@ export default function DashboardEvents() {
       <StatusStrip settings={settings} workerStatus={payload?.worker.status || 'offline'} />
 
       <div className="mt-5 rounded-md bg-accent-50 px-4 py-3 text-sm text-accent-900">
-        The background worker is offline. Manual sync works now; queued jobs can run automatically when a server worker is added.
+        Eventbrite sync runs through the Supabase Edge Function. If Test or Sync fails, deploy eventbrite-sync and set its secrets first.
       </div>
 
       {notice && <p className="mt-5 rounded-md bg-secondary-50 px-4 py-3 text-sm font-medium text-secondary-900">{notice}</p>}
@@ -395,4 +395,5 @@ function formatDateTime(value?: string | null) {
     minute: '2-digit',
   }).format(new Date(value));
 }
+
 

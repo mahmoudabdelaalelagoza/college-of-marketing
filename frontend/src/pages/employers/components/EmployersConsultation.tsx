@@ -32,7 +32,7 @@ export default function EmployersConsultation() {
               </div>
               <div className="lg:col-span-7">
                 <Reveal delay={120}>
-                  <div className="rounded-[16px] border border-background-300 bg-background-100 p-8 md:p-10">
+                  <div className=" bg-background-100 ">
                     <LeadForm
                       formId="employer-consultation-form"
                      submitLabel="Book a consultation"

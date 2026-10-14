@@ -38,7 +38,7 @@ export default function SiteFooter() {
           <div className="lg:col-span-2">
             <Link
               to="/"
-              className="inline-flex rounded-md border border-accent-400/25 bg-background-50 px-4 py-3 shadow-soft"
+              className="inline-flex"
               aria-label="College of Marketing home"
             >
               <img

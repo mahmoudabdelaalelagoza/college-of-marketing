@@ -38,10 +38,8 @@ const simpleLinks = [
 const moreGroup: NavGroup = {
   label: 'More',
   items: [
-    { label: 'Capabilities', to: '/college-of-marketing#capabilities' },
-    { label: 'Professional pathway', to: '/college-of-marketing#pathway' },
     { label: 'Funding', to: '/funding' },
-    { label: 'Eligibility checker', to: '/college-of-marketing#eligibility' },
+    { label: 'Eligibility checker', to: '/eligibility-checker' },
     { label: 'FAQ', to: '/faq' },
   ],
 };
@@ -238,7 +236,7 @@ export default function SiteHeader() {
 
         <div className="hidden items-center gap-3 lg:flex">
           <Link
-            to="/college-of-marketing#eligibility"
+            to="/eligibility-checker"
             className="text-sm font-medium text-foreground-700 transition-colors hover:text-primary-800"
           >
             Check eligibility

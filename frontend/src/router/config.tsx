@@ -12,6 +12,7 @@ import Events from '../pages/events/page';
 import About from '../pages/about/page';
 import Employers from '../pages/employers/page';
 import Funding from '../pages/funding/page';
+import Eligibility from '../pages/eligibility/page';
 import FAQ from '../pages/faq/page';
 import Privacy from '../pages/privacy/page';
 import Terms from '../pages/terms/page';
@@ -73,6 +74,10 @@ const routes: RouteObject[] = [
   {
     path: '/funding',
     element: <Funding />,
+  },
+  {
+    path: '/eligibility-checker',
+    element: <Eligibility />,
   },
   {
     path: '/faq',

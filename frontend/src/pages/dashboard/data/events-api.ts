@@ -72,13 +72,20 @@ export interface DashboardEventsPayload {
   worker: { status: string };
 }
 
+type EventbriteSettingsRecord = Partial<DashboardEventbriteSettings> & {
+  private_token_encrypted?: string | null;
+  has_token?: boolean | null;
+};
+
+type WorkerErrorResponse = { error?: string };
+
 const emptySettings: DashboardEventbriteSettings = {
   organization_id: null,
   public_backend_url: null,
   sync_interval_minutes: 15,
   auto_sync_enabled: false,
   show_uncategorized: true,
-  connection_status: 'static-hosting',
+  connection_status: 'unverified',
   last_test_at: null,
   last_full_sync_at: null,
   last_sync_status: null,
@@ -119,35 +126,23 @@ export async function getDashboardEvents(q = ''): Promise<DashboardEventsPayload
     stats: getStats(events),
     classifications: (classificationsResult.data || []) as EventClassification[],
     jobs: (jobsResult.data || []) as EventbriteSyncJob[],
-    settings: normaliseSettings(settingsResult.data as Partial<DashboardEventbriteSettings> | null),
-    worker: { status: 'static-hosting' },
+    settings: normaliseSettings(settingsResult.data as EventbriteSettingsRecord | null),
+    worker: { status: 'supabase-edge-function' },
   };
 }
 
-export async function saveEventbriteSettings(settings: Record<string, unknown>) {
-  const client = requireSupabase();
-  const payload = {
-    id: 1,
-    organization_id: text(settings.organization_id),
-    public_backend_url: text(settings.public_backend_url),
-    sync_interval_minutes: Number(settings.sync_interval_minutes || 15),
-    auto_sync_enabled: Boolean(settings.auto_sync_enabled),
-    show_uncategorized: Boolean(settings.show_uncategorized),
-    connection_status: 'static-hosting',
-    updated_at: new Date().toISOString(),
-  };
-
-  const { data, error } = await client.from('eventbrite_settings').upsert(payload).select('*').single();
-  if (error) throw new Error(supabaseError(error, 'Could not save Eventbrite settings.'));
-  return { settings: normaliseSettings(data as Partial<DashboardEventbriteSettings>) };
+export function saveEventbriteSettings(settings: Record<string, unknown>) {
+  return invokeEventbriteWorker<{ settings: DashboardEventbriteSettings }>('save-settings', { settings });
 }
 
 export function testEventbriteConnection(): Promise<{ result: { ok: boolean; count: number }; settings: DashboardEventbriteSettings }> {
-  throw new Error('Eventbrite testing needs a server-side worker. Static Hostinger hosting cannot safely call Eventbrite with a private token.');
+  return invokeEventbriteWorker('test');
 }
 
-export function syncEventbrite(): Promise<DashboardEventsPayload & { job: EventbriteSyncJob }> {
-  throw new Error('Eventbrite sync needs a server-side worker. Manage events manually in the CMS or add a Supabase Edge Function later.');
+export async function syncEventbrite(): Promise<DashboardEventsPayload & { job: EventbriteSyncJob }> {
+  const result = await invokeEventbriteWorker<{ job: EventbriteSyncJob }>('sync');
+  const next = await getDashboardEvents();
+  return { ...next, job: result.job };
 }
 
 export async function addEventClassification(classification: { name: string; slug: string; type: string }) {
@@ -184,6 +179,25 @@ export async function updateEventVisibility(id: string, event: { is_hidden: bool
   return { event: data as DashboardManagedEvent };
 }
 
+async function invokeEventbriteWorker<T>(action: string, body: Record<string, unknown> = {}): Promise<T> {
+  const client = requireSupabase();
+  const { data: sessionData, error: sessionError } = await client.auth.getSession();
+
+  if (sessionError) throw new Error(supabaseError(sessionError, 'Could not read dashboard session.'));
+  if (!sessionData.session?.access_token) throw new Error('Dashboard sign-in required before using Eventbrite sync.');
+
+  const { data, error } = await client.functions.invoke<T & WorkerErrorResponse>('eventbrite-sync', {
+    body: { action, ...body },
+    headers: { Authorization: `Bearer ${sessionData.session.access_token}` },
+  });
+
+  if (error) throw new Error(supabaseError(error, 'Eventbrite worker failed. Make sure the eventbrite-sync Supabase function is deployed.'));
+  if (data?.error) throw new Error(data.error);
+  if (!data) throw new Error('Eventbrite worker returned an empty response.');
+
+  return data;
+}
+
 function getStats(events: DashboardManagedEvent[]) {
   const now = Date.now();
   return {
@@ -194,11 +208,7 @@ function getStats(events: DashboardManagedEvent[]) {
   };
 }
 
-function normaliseSettings(settings: Partial<DashboardEventbriteSettings> | null): DashboardEventbriteSettings {
-  return { ...emptySettings, ...(settings || {}), has_token: false };
-}
-
-function text(value: unknown) {
-  const next = String(value || '').trim();
-  return next || null;
+function normaliseSettings(settings: EventbriteSettingsRecord | null): DashboardEventbriteSettings {
+  const { private_token_encrypted: token, has_token: hasToken, ...safeSettings } = settings || {};
+  return { ...emptySettings, ...safeSettings, has_token: Boolean(hasToken || token) };
 }
