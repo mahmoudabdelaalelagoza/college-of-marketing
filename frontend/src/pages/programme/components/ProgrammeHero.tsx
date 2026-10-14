@@ -1,4 +1,4 @@
-﻿import Button from '@/components/base/Button';
+import Button from '@/components/base/Button';
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import HeroPattern from '@/components/feature/HeroPattern';
@@ -13,12 +13,10 @@ export default function ProgrammeHero({ config }: ProgrammeHeroProps) {
   const { hero, panelClass, level } = config;
 
   return (
-    <section className="container-wide pb-16 pt-8 md:pb-24 md:pt-10">
-      <div
-        className={`${panelClass} warm-glow relative overflow-hidden rounded-[18px] px-6 py-14 text-background-50 md:px-14 md:py-20`}
-      >
-        <HeroPattern />
-        <div className="relative z-10 grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-10">
+    <section className={`${panelClass} warm-glow relative overflow-hidden pb-16 pt-8 text-background-50 md:pb-24 md:pt-10`}>
+      <HeroPattern />
+      <div className="container-wide relative z-10 px-6 py-14 md:px-14 md:py-20">
+        <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-7">
             <Reveal>
               <Eyebrow tone="gold">{hero.eyebrow}</Eyebrow>
