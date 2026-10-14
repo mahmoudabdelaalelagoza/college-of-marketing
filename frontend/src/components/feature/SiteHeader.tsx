@@ -152,7 +152,7 @@ export default function SiteHeader() {
           <div className="grid grid-cols-[0.9fr_1.4fr] gap-4">
             <div className="rounded-[14px] bg-primary-900 p-5 text-background-50">
               <p className="eyebrow text-accent-400">Programmes</p>
-              <h3 className="mt-4 font-heading text-2xl font-semibold leading-tight">
+              <h3 className="mt-4 font-heading text-2xl font-semibold leading-tight text-background-50">
                 Funded marketing pathways and standalone course options.
               </h3>
               <p className="mt-4 text-sm leading-relaxed text-background-50/70">
