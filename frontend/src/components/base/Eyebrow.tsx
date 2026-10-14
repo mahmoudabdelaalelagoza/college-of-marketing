@@ -1,4 +1,4 @@
-﻿import type { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface EyebrowProps {
   children: ReactNode;
@@ -14,15 +14,5 @@ const toneMap: Record<string, string> = {
 };
 
 export default function Eyebrow({ children, tone = 'muted', className = '' }: EyebrowProps) {
-  return (
-    <span className={`eyebrow flex items-center gap-3 ${toneMap[tone]} ${className}`}>
-      <span
-        aria-hidden="true"
-        className={`inline-block h-px w-6 ${
-          tone === 'light' ? 'bg-background-50/40' : tone === 'gold' ? 'bg-accent-500/70' : 'bg-current opacity-40'
-        }`}
-      />
-      {children}
-    </span>
-  );
+  return <span className={`eyebrow ${toneMap[tone]} ${className}`}>{children}</span>;
 }
