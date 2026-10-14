@@ -1,14 +1,14 @@
-﻿import Button from '@/components/base/Button';
+import Button from '@/components/base/Button';
 import Eyebrow from '@/components/base/Eyebrow';
 import Reveal from '@/components/base/Reveal';
 import HeroPattern from '@/components/feature/HeroPattern';
 
 export default function ConsultationHero() {
   return (
-    <section className="container-wide pt-8 md:pt-10">
-      <div className="hero-maroon-gradient warm-glow relative overflow-hidden rounded-[18px] px-6 py-14 text-background-50 md:px-14 md:py-20">
-        <HeroPattern />
-        <div className="relative z-10 max-w-3xl">
+    <section className="hero-maroon-gradient warm-glow relative overflow-hidden pt-8 text-background-50 md:pt-10">
+      <HeroPattern />
+      <div className="container-wide relative z-10 px-6 py-14 md:px-14 md:py-20">
+        <div className="max-w-3xl">
           <Reveal>
             <Eyebrow tone="gold">Consultation booking</Eyebrow>
           </Reveal>
