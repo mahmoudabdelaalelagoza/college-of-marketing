@@ -45,12 +45,16 @@ Deno.serve(async (request) => {
       return respond({ users: data as StaffProfile[] });
     }
 
-    if (action === 'invite') {
+    if (action === 'create') {
       const email = String(body.email || '').trim().toLowerCase();
       const name = requiredName(body.name);
       const role = requiredRole(body.role);
+      const password = body.password;
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
         throw new RequestError('Enter a valid email address.');
+      }
+      if (typeof password !== 'string' || password.length < 12 || password.length > 128) {
+        throw new RequestError('Password must be 12 to 128 characters.');
       }
 
       const { data: existing, error: lookupError } = await client.from('dashboard_profiles')
@@ -58,20 +62,24 @@ Deno.serve(async (request) => {
       if (lookupError) throw lookupError;
       if (existing) throw new RequestError('This email already has a dashboard account.');
 
-      const redirectTo = Deno.env.get('DASHBOARD_INVITE_REDIRECT_URL') ||
-        'https://marketing.kentbusinesscollege.com/dashboard/set-password';
-      const { data: invitation, error: inviteError } = await client.auth.admin.inviteUserByEmail(email, {
-        redirectTo,
-        data: { name },
+      const { data: created, error: createError } = await client.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { name },
       });
-      if (inviteError) throw inviteError;
-      if (!invitation.user) throw new Error('The invitation did not create an Auth user.');
+      if (createError) throw createError;
+      if (!created.user) throw new Error('Auth did not create the user.');
 
       const { data: profile, error: profileError } = await client.from('dashboard_profiles')
-        .insert({ id: invitation.user.id, email, name, role, is_active: true })
+        .insert({ id: created.user.id, email, name, role, is_active: true })
         .select('id,email,name,role,is_active,created_at,updated_at').single();
       if (profileError) {
-        throw new Error(`Invitation sent, but profile setup failed for Auth user ${invitation.user.id}. Add its dashboard profile manually. ${profileError.message}`);
+        const { error: cleanupError } = await client.auth.admin.deleteUser(created.user.id);
+        if (cleanupError) {
+          throw new Error(`Auth user ${created.user.id} was created but dashboard profile setup failed. Remove that Auth user manually before retrying.`);
+        }
+        throw new Error('Could not finish dashboard account setup. No account was kept; please try again.');
       }
       return respond({ user: profile as StaffProfile });
     }

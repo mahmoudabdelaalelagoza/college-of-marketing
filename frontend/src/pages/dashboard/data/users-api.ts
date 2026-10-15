@@ -18,8 +18,8 @@ export function listDashboardUsers() {
   return invoke<{ users: ManagedUser[] }>('list');
 }
 
-export function inviteDashboardUser(payload: { email: string; name: string; role: DashboardRole }) {
-  return invoke<{ user: ManagedUser }>('invite', payload);
+export function createDashboardUser(payload: { email: string; name: string; role: DashboardRole; password: string }) {
+  return invoke<{ user: ManagedUser }>('create', payload);
 }
 
 export function updateDashboardUser(payload: { id: string; name: string; role: DashboardRole; is_active: boolean }) {

@@ -77,9 +77,11 @@ content. Dashboard access is restricted by Supabase Auth plus the
 For an existing project, run `supabase/migrations/20261015_dashboard_user_roles.sql`
 in Supabase SQL Editor. Do not rerun the whole schema on an existing project.
 The initial admin still needs a matching Auth user and `dashboard_profiles` row
-as shown above. After that, admins can invite staff at `/dashboard/users`.
-If an email is already present in Auth without a profile, verify the Auth user and add
-its UUID to `dashboard_profiles` manually instead of sending a duplicate invite.
+as shown above. After that, admins can create staff accounts with an email,
+role and password at `/dashboard/users`. No invitation email is sent. Share the
+initial password securely and ask the user to change it after signing in. If an
+email is already present in Auth without a profile, verify that Auth user and
+add its UUID to `dashboard_profiles` manually rather than creating a duplicate.
 
 | Role | Access |
 | --- | --- |
@@ -87,7 +89,7 @@ its UUID to `dashboard_profiles` manually instead of sending a duplicate invite.
 | Editor | Leads and content, except Eventbrite events and site settings |
 
 After applying the migration, deploy both functions and publish the frontend before
-sending any invitations:
+creating staff accounts:
 
 ```bash
 supabase functions deploy dashboard-users
@@ -97,10 +99,9 @@ supabase functions deploy eventbrite-sync
 In Supabase Auth URL Configuration, allow
 `https://marketing.kentbusinesscollege.com/dashboard/set-password` as a redirect
 URL. Add `http://localhost:3000/dashboard/set-password` for local password reset
-testing. The invitation uses the production URL by default; for another host,
-set the `DASHBOARD_INVITE_REDIRECT_URL` Supabase function secret to an allowed
-URL. Configure Auth email/SMTP delivery so invitations and reset links arrive.
-The service-role key stays in Supabase Edge Functions, never in the frontend.
+testing. Email/SMTP delivery is only needed for optional password reset links,
+not for creating accounts. The service-role key stays in Supabase Edge Functions,
+never in the frontend.
 
 ## Hostinger FTP Deploy
 

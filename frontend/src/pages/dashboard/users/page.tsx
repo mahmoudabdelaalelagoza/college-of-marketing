@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { DashboardUser } from '../data/api';
 import {
-  inviteDashboardUser,
+  createDashboardUser,
   listDashboardUsers,
   updateDashboardUser,
   type DashboardRole,
@@ -15,8 +15,8 @@ export default function DashboardUsers() {
   const currentUser = useOutletContext<DashboardUser>();
   const [users, setUsers] = useState<ManagedUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [inviting, setInviting] = useState(false);
-  const [inviteRole, setInviteRole] = useState<DashboardRole>('editor');
+  const [creating, setCreating] = useState(false);
+  const [createRole, setCreateRole] = useState<DashboardRole>('editor');
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
 
@@ -29,30 +29,39 @@ export default function DashboardUsers() {
     return () => { active = false; };
   }, []);
 
-  const invite = async (event: FormEvent<HTMLFormElement>) => {
+  const createUser = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
     const values = new FormData(form);
-    setInviting(true);
+    const password = String(values.get('password') || '');
+    const confirmPassword = String(values.get('confirmPassword') || '');
+    if (password.length < 12 || password.length > 128) return setError('Password must be 12 to 128 characters.');
+    if (password !== confirmPassword) return setError('Passwords do not match.');
+    if (createRole === 'admin' && !window.confirm('Give this new user full administrator access?')) return;
+    setCreating(true);
     setNotice('');
     setError('');
     try {
-      const { user } = await inviteDashboardUser({
+      const { user } = await createDashboardUser({
         name: String(values.get('name') || '').trim(),
         email: String(values.get('email') || '').trim(),
-        role: inviteRole,
+        role: createRole,
+        password,
       });
       setUsers((items) => [...items, user].sort((a, b) => a.name.localeCompare(b.name)));
-      setNotice(`Invitation sent to ${user.email}.`);
+      setNotice(`Account created for ${user.email}.`);
       form.reset();
-      setInviteRole('editor');
+      setCreateRole('editor');
     } catch (err) {
       setError(message(err));
     } finally {
-      setInviting(false);
+      const passwordInput = form.elements.namedItem('password') as HTMLInputElement | null;
+      const confirmInput = form.elements.namedItem('confirmPassword') as HTMLInputElement | null;
+      if (passwordInput) passwordInput.value = '';
+      if (confirmInput) confirmInput.value = '';
+      setCreating(false);
     }
   };
-
   const saveUser = async (payload: { id: string; name: string; role: DashboardRole; is_active: boolean }) => {
     setNotice('');
     setError('');
@@ -77,8 +86,8 @@ export default function DashboardUsers() {
       {error && <p role="alert" className="mt-6 rounded-md bg-primary-100 px-4 py-3 text-sm text-primary-800">{error}</p>}
 
       <section className="mt-7 border-y border-background-300 py-6">
-        <h2 className="font-heading text-xl font-semibold">Invite a user</h2>
-        <form onSubmit={invite} className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-[1fr_1.3fr_150px_auto] md:items-end">
+        <h2 className="font-heading text-xl font-semibold">Create a user</h2>
+        <form onSubmit={createUser} className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <label className="text-xs font-semibold text-foreground-700">Name
             <input name="name" type="text" required minLength={2} maxLength={100} autoComplete="off" className={`mt-1.5 ${fieldClass}`} />
           </label>
@@ -86,17 +95,24 @@ export default function DashboardUsers() {
             <input name="email" type="email" required autoComplete="off" className={`mt-1.5 ${fieldClass}`} />
           </label>
           <label className="text-xs font-semibold text-foreground-700">Role
-            <select value={inviteRole} onChange={(event) => setInviteRole(event.target.value as DashboardRole)} className={`mt-1.5 ${fieldClass}`}>
+            <select value={createRole} onChange={(event) => setCreateRole(event.target.value as DashboardRole)} className={`mt-1.5 ${fieldClass}`}>
               <option value="editor">Editor</option>
               <option value="admin">Admin</option>
             </select>
           </label>
-          <button type="submit" disabled={inviting} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary-800 px-5 text-sm font-semibold text-background-50 hover:bg-primary-900 disabled:opacity-60">
-            <i className="ri-mail-send-line" aria-hidden="true" />{inviting ? 'Sending...' : 'Send invite'}
-          </button>
+          <label className="text-xs font-semibold text-foreground-700">Password
+            <input name="password" type="password" required minLength={12} maxLength={128} autoComplete="new-password" className={`mt-1.5 ${fieldClass}`} />
+          </label>
+          <label className="text-xs font-semibold text-foreground-700">Confirm password
+            <input name="confirmPassword" type="password" required minLength={12} maxLength={128} autoComplete="new-password" className={`mt-1.5 ${fieldClass}`} />
+          </label>
+          <div className="flex items-end md:justify-end">
+            <button type="submit" disabled={creating} className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-primary-800 px-5 text-sm font-semibold text-background-50 hover:bg-primary-900 disabled:opacity-60 md:w-auto">
+              <i className="ri-user-add-line" aria-hidden="true" />{creating ? 'Creating...' : 'Create user'}
+            </button>
+          </div>
         </form>
       </section>
-
       <section className="mt-7">
         <div className="flex items-center justify-between gap-4">
           <h2 className="font-heading text-xl font-semibold">Staff accounts</h2>

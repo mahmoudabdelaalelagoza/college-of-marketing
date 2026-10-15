@@ -13,7 +13,7 @@ export default function SetDashboardPassword() {
     let active = true;
     getCurrentUser()
       .then(() => { if (active) setReady(true); })
-      .catch((err) => { if (active) setError(err instanceof Error ? err.message : 'Invitation link is invalid or expired.'); });
+      .catch((err) => { if (active) setError(err instanceof Error ? err.message : 'Password link is invalid or expired.'); });
     return () => { active = false; };
   }, []);
 
