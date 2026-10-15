@@ -73,12 +73,12 @@ Deno.serve(async (request) => {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    const user = await requireDashboardUser(serviceClient, authorization);
+    await requireDashboardUser(serviceClient, authorization);
     const body = await request.json().catch(() => ({}));
     const action = String(body.action || '');
 
     if (action === 'save-settings') {
-      return json(await saveSettings(serviceClient, user.id, body.settings || {}));
+      return json(await saveSettings(serviceClient, body.settings || {}));
     }
 
     if (action === 'organizations') {
@@ -166,7 +166,7 @@ async function loadSettings(client: SupabaseClient): Promise<EventbriteSettingsR
   return inserted as EventbriteSettingsRow;
 }
 
-async function saveSettings(client: SupabaseClient, userId: string, payload: Record<string, unknown>) {
+async function saveSettings(client: SupabaseClient, payload: Record<string, unknown>) {
   const existing = await loadSettings(client);
   const privateToken = String(payload.private_token || '').trim();
   const removeToken = Boolean(payload.remove_token);
@@ -184,7 +184,6 @@ async function saveSettings(client: SupabaseClient, userId: string, payload: Rec
     sync_interval_minutes: clampInteger(payload.sync_interval_minutes, 5, 1440, 15),
     auto_sync_enabled: Boolean(payload.auto_sync_enabled),
     show_uncategorized: payload.show_uncategorized !== false,
-    updated_by: userId,
     updated_at: new Date().toISOString(),
     connection_status: !token ? 'unverified' : organizationId ? 'configured' : 'selection-required',
   };
