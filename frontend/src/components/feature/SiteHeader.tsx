@@ -9,12 +9,6 @@ interface NavGroup {
 
 const programmeItems = [
   {
-    label: 'College of Marketing',
-    to: '/',
-    note: 'Overview of the marketing college, eligibility and funded pathways.',
-    icon: 'ri-school-line',
-  },
-  {
     label: 'Marketing Executive - Level 4',
     to: '/college-of-marketing/marketing-executive-level-4',
     note: 'Professional and digital foundations for marketers delivering campaigns.',

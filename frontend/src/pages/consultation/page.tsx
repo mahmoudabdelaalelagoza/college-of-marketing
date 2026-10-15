@@ -1,5 +1,5 @@
-﻿import PageShell from '@/components/feature/PageShell';
-import { secondaryNav } from '@/lib/nav';
+﻿import SiteFooter from '@/components/feature/SiteFooter';
+import SiteHeader from '@/components/feature/SiteHeader';
 import ConsultationHero from './components/ConsultationHero';
 import ConsultationBooking from './components/ConsultationBooking';
 import { useSeo } from '@/lib/seo';
@@ -13,9 +13,13 @@ export default function Consultation() {
     path: '/consultation',
   });
   return (
-    <PageShell navItems={secondaryNav}>
-      <ConsultationHero />
-      <ConsultationBooking />
-    </PageShell>
+    <div className="min-h-screen bg-background-100">
+      <SiteHeader />
+      <main id="main-content">
+        <ConsultationHero />
+        <ConsultationBooking />
+      </main>
+      <SiteFooter />
+    </div>
   );
 }

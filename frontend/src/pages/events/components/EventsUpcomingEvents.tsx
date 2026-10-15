@@ -112,11 +112,11 @@ export default function EventsUpcomingEvents() {
                       {event.location}
                     </span>
                     {event.ctaUrl ? (
-                      <Button href={event.ctaUrl} variant="link" className="ml-auto self-center">
+                      <Button href={event.ctaUrl} newTab variant="link" className="ml-auto self-center">
                         Register
                       </Button>
                     ) : (
-                      <Button to="/college-of-marketing#apply" variant="link" className="ml-auto self-center">
+                      <Button to="/college-of-marketing#apply" newTab variant="link" className="ml-auto self-center">
                         Register
                       </Button>
                     )}

@@ -1,5 +1,5 @@
-﻿import PageShell from '@/components/feature/PageShell';
-import { secondaryNav } from '@/lib/nav';
+﻿import SiteFooter from '@/components/feature/SiteFooter';
+import SiteHeader from '@/components/feature/SiteHeader';
 import FundingHero from './components/FundingHero';
 import FundingFundingTypes from './components/FundingFundingTypes';
 import FundingSteps from './components/FundingSteps';
@@ -15,12 +15,16 @@ export default function Funding() {
     path: '/funding',
   });
   return (
-    <PageShell navItems={secondaryNav}>
-      <FundingHero />
-      <FundingFundingTypes />
-      <FundingSteps />
-      <FundingCTA />
-    </PageShell>
+    <div className="min-h-screen bg-background-100">
+      <SiteHeader />
+      <main id="main-content">
+        <FundingHero />
+        <FundingFundingTypes />
+        <FundingSteps />
+        <FundingCTA />
+      </main>
+      <SiteFooter />
+    </div>
   );
 }
 

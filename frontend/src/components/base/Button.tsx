@@ -8,6 +8,7 @@ interface ButtonProps {
   children: ReactNode;
   to?: string;
   href?: string;
+  newTab?: boolean;
   onClick?: () => void;
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -59,6 +60,7 @@ export default function Button({
   children,
   to,
   href,
+  newTab = false,
   onClick,
   variant = 'primary',
   size = 'md',
@@ -81,7 +83,13 @@ export default function Button({
 
   if (to) {
     return (
-      <Link to={to} className={classes} onClick={onClick}>
+      <Link
+        to={to}
+        className={classes}
+        onClick={onClick}
+        target={newTab ? '_blank' : undefined}
+        rel={newTab ? 'noopener noreferrer' : undefined}
+      >
         {content}
       </Link>
     );
@@ -89,7 +97,13 @@ export default function Button({
 
   if (href) {
     return (
-      <a href={href} className={classes} onClick={onClick}>
+      <a
+        href={href}
+        className={classes}
+        onClick={onClick}
+        target={newTab ? '_blank' : undefined}
+        rel={newTab ? 'noopener noreferrer' : undefined}
+      >
         {content}
       </a>
     );
