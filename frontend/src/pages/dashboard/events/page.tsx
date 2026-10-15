@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import {
   addEventClassification,
   getDashboardEvents,
+  listEventbriteOrganizations,
   saveEventbriteSettings,
   syncEventbrite,
   testEventbriteConnection,
@@ -12,6 +13,7 @@ import {
   type DashboardManagedEvent,
   type EventbriteSyncJob,
   type EventClassification,
+  type EventbriteOrganization,
 } from '../data/events-api';
 
 type EventsTab = 'events' | 'categories' | 'connection' | 'history';
@@ -44,6 +46,9 @@ export default function DashboardEvents() {
   const [busy, setBusy] = useState('');
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
+  const [organizations, setOrganizations] = useState<EventbriteOrganization[]>([]);
+  const [selectedOrganizationId, setSelectedOrganizationId] = useState('');
+  const [discovering, setDiscovering] = useState(false);
 
   const settings = payload?.settings || emptySettings;
   const publicUpcoming = payload?.stats.public_upcoming || 0;
@@ -61,6 +66,34 @@ export default function DashboardEvents() {
     load('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (tab !== 'connection' || !settings.has_token) {
+      if (!settings.has_token) {
+        setOrganizations([]);
+        setSelectedOrganizationId('');
+      }
+      return;
+    }
+
+    let cancelled = false;
+    setDiscovering(true);
+    listEventbriteOrganizations()
+      .then((result) => {
+        if (cancelled) return;
+        setOrganizations(result.organizations);
+        setSelectedOrganizationId(result.settings.organization_id || '');
+        setPayload((current) => current ? { ...current, settings: result.settings } : current);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Could not load Eventbrite organisations.');
+      })
+      .finally(() => {
+        if (!cancelled) setDiscovering(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [tab, settings.has_token]);
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -91,7 +124,7 @@ export default function DashboardEvents() {
     try {
       const result = await saveEventbriteSettings({
         private_token: String(form.get('private_token') || ''),
-        organization_id: String(form.get('organization_id') || ''),
+        organization_id: selectedOrganizationId,
         public_backend_url: String(form.get('public_backend_url') || ''),
         sync_interval_minutes: Number(form.get('sync_interval_minutes') || 15),
         auto_sync_enabled: form.get('auto_sync_enabled') === 'on',
@@ -99,7 +132,11 @@ export default function DashboardEvents() {
         remove_token: form.get('remove_token') === 'on',
       });
       setPayload((current) => current ? { ...current, settings: result.settings } : current);
-      setNotice('Eventbrite settings saved.');
+      setOrganizations(result.organizations);
+      setSelectedOrganizationId(result.settings.organization_id || '');
+      setNotice(result.organizations.length > 1 && !result.settings.organization_id
+        ? 'Token saved. Select the organisation you want to sync, then save again.'
+        : 'Eventbrite settings saved.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save settings.');
     } finally {
@@ -114,7 +151,11 @@ export default function DashboardEvents() {
     try {
       const result = await testEventbriteConnection();
       setPayload((current) => current ? { ...current, settings: result.settings } : current);
-      setNotice('Connection verified.');
+      setOrganizations(result.organizations);
+      setSelectedOrganizationId(result.settings.organization_id || '');
+      setNotice(result.result.needs_selection
+        ? 'Select an organisation and save your settings before syncing.'
+        : `Connection verified. ${result.result.count} events found on the first page.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Connection test failed.');
     } finally {
@@ -203,7 +244,7 @@ export default function DashboardEvents() {
       ) : tab === 'categories' ? (
         <CategoriesPanel classifications={payload?.classifications || []} onAdd={handleAddClassification} onToggle={toggleClassification} busy={busy} />
       ) : tab === 'connection' ? (
-        <ConnectionPanel settings={settings} onSave={handleSaveSettings} onTest={handleTest} onSync={runSync} busy={busy} />
+        <ConnectionPanel settings={settings} organizations={organizations} selectedOrganizationId={selectedOrganizationId} onSelectOrganization={setSelectedOrganizationId} discovering={discovering} onSave={handleSaveSettings} onTest={handleTest} onSync={runSync} busy={busy} />
       ) : (
         <HistoryPanel jobs={payload?.jobs || []} onRefresh={() => load(query)} />
       )}
@@ -317,14 +358,36 @@ function CategoriesPanel({ classifications, onAdd, onToggle, busy }: { classific
   );
 }
 
-function ConnectionPanel({ settings, onSave, onTest, onSync, busy }: { settings: DashboardEventbriteSettings; onSave: (event: FormEvent<HTMLFormElement>) => void; onTest: () => void; onSync: () => void; busy: string }) {
+function ConnectionPanel({ settings, organizations, selectedOrganizationId, onSelectOrganization, discovering, onSave, onTest, onSync, busy }: {
+  settings: DashboardEventbriteSettings;
+  organizations: EventbriteOrganization[];
+  selectedOrganizationId: string;
+  onSelectOrganization: (id: string) => void;
+  discovering: boolean;
+  onSave: (event: FormEvent<HTMLFormElement>) => void;
+  onTest: () => void;
+  onSync: () => void;
+  busy: string;
+}) {
   return (
     <form onSubmit={onSave} className="mt-6 rounded-[16px] border border-background-300 bg-background-50 p-6 shadow-soft">
       <h2 className="font-heading text-2xl font-semibold">Eventbrite connection</h2>
-      <p className="mt-2 text-sm text-foreground-600">Save your account details here, then test the connection. Eventbrite remains the source for event details and registration.</p>
+      <p className="mt-2 text-sm text-foreground-600">Save your private token to connect your Eventbrite account. Eventbrite remains the source for event details and registration.</p>
       <div className="mt-7 grid grid-cols-1 gap-5 lg:grid-cols-2">
         <label className="text-sm font-semibold text-foreground-800">Private API token<input name="private_token" type="password" placeholder={settings.has_token ? 'Token saved - leave blank to keep it' : 'Paste private token'} className="mt-2 w-full rounded-[10px] border border-background-300 px-4 py-3" /><span className="mt-2 block text-xs font-normal text-foreground-500">Stored encrypted. The saved token is never returned to the dashboard.</span></label>
-        <label className="text-sm font-semibold text-foreground-800">Organisation ID<input name="organization_id" defaultValue={settings.organization_id || ''} className="mt-2 w-full rounded-[10px] border border-background-300 px-4 py-3" /></label>
+        <div className="text-sm font-semibold text-foreground-800">
+          <label htmlFor="eventbrite-organization">Eventbrite organisation</label>
+          {organizations.length > 1 ? (
+            <select id="eventbrite-organization" value={selectedOrganizationId} onChange={(event) => onSelectOrganization(event.target.value)} className="mt-2 w-full rounded-[10px] border border-background-300 px-4 py-3">
+              <option value="">Select an organisation</option>
+              {organizations.map((organization) => <option key={organization.id} value={organization.id}>{organization.name}</option>)}
+            </select>
+          ) : (
+            <p className="mt-2 rounded-[10px] border border-background-300 bg-background-50 px-4 py-3 font-normal text-foreground-600">
+              {discovering ? 'Finding organisations...' : organizations[0]?.name || 'Save a private token to find your organisations.'}
+            </p>
+          )}
+        </div>
         <label className="text-sm font-semibold text-foreground-800 lg:col-span-2">Public backend URL (HTTPS)<input name="public_backend_url" defaultValue={settings.public_backend_url || ''} placeholder="https://api.example.com" className="mt-2 w-full rounded-[10px] border border-background-300 px-4 py-3" /><span className="mt-2 block text-xs font-normal text-foreground-500">Needed for webhooks. Scheduled and manual sync can work without this URL.</span></label>
         <label className="text-sm font-semibold text-foreground-800">Sync interval (minutes)<input name="sync_interval_minutes" type="number" min="5" defaultValue={settings.sync_interval_minutes || 15} className="mt-2 w-full rounded-[10px] border border-background-300 px-4 py-3" /></label>
         <div className="space-y-4 self-end text-sm text-foreground-800">
@@ -334,9 +397,9 @@ function ConnectionPanel({ settings, onSave, onTest, onSync, busy }: { settings:
         </div>
       </div>
       <div className="mt-7 flex flex-wrap gap-3">
-        <button className="rounded-full bg-accent-500 px-6 py-3 text-sm font-semibold text-foreground-950 hover:bg-accent-400 disabled:opacity-60" disabled={busy === 'settings'}>{busy === 'settings' ? 'Saving...' : 'Save settings'}</button>
-        <button type="button" onClick={onTest} disabled={busy === 'test'} className="rounded-md border border-background-300 px-6 py-3 text-sm font-semibold hover:bg-background-100 disabled:opacity-60">{busy === 'test' ? 'Testing...' : 'Test saved connection'}</button>
-        <button type="button" onClick={onSync} disabled={busy === 'sync'} className="rounded-md border border-background-300 px-6 py-3 text-sm font-semibold hover:bg-background-100 disabled:opacity-60">{busy === 'sync' ? 'Syncing...' : 'Sync now'}</button>
+        <button className="rounded-full bg-accent-500 px-6 py-3 text-sm font-semibold text-foreground-950 hover:bg-accent-400 disabled:opacity-60" disabled={Boolean(busy) || discovering}>{busy === 'settings' ? 'Saving...' : 'Save settings'}</button>
+        <button type="button" onClick={onTest} disabled={!settings.has_token || selectedOrganizationId !== (settings.organization_id || '') || Boolean(busy) || discovering} className="rounded-md border border-background-300 px-6 py-3 text-sm font-semibold hover:bg-background-100 disabled:opacity-60">{busy === 'test' ? 'Testing...' : 'Test saved connection'}</button>
+        <button type="button" onClick={onSync} disabled={!settings.has_token || !settings.organization_id || selectedOrganizationId !== settings.organization_id || Boolean(busy) || discovering} className="rounded-md border border-background-300 px-6 py-3 text-sm font-semibold hover:bg-background-100 disabled:opacity-60">{busy === 'sync' ? 'Syncing...' : 'Sync now'}</button>
       </div>
     </form>
   );

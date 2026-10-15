@@ -4,14 +4,13 @@ This function keeps the Eventbrite private token on the server side and syncs li
 
 ## Required Supabase secrets
 
-Set these before deploying the function:
+Set the encryption secret before deploying the function:
 
 ```bash
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 supabase secrets set EVENTBRITE_TOKEN_SECRET=use-a-long-random-secret
 ```
 
-`SUPABASE_URL` is provided automatically by Supabase Edge Functions. If your project does not provide it, set it as a secret too.
+Supabase provides `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to deployed Edge Functions automatically. Keep the same encryption secret across deployments so saved tokens remain readable.
 
 ## Deploy
 
@@ -21,8 +20,7 @@ supabase functions deploy eventbrite-sync
 
 After deployment, open Dashboard > Events > Eventbrite connection:
 
-1. Paste the Eventbrite private API token.
-2. Add the real Eventbrite organisation ID, not the email address.
-3. Save settings.
-4. Test saved connection.
-5. Sync now.
+1. Paste the Eventbrite private API token and save settings.
+2. If the token can access several organisations, select one by name and save again. A single organisation is selected automatically.
+3. Test the saved connection.
+4. Sync now.

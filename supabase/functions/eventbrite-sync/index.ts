@@ -43,6 +43,7 @@ type EventbriteEvent = {
   } | null;
 };
 
+type EventbriteOrganization = { id: string; name: string };
 type SupabaseClient = ReturnType<typeof createClient>;
 
 const corsHeaders = {
@@ -68,34 +69,48 @@ Deno.serve(async (request) => {
     const serviceRoleKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
     const authorization = request.headers.get('authorization') || '';
 
-    const adminClient = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-      global: { headers: { Authorization: authorization } },
-    });
-
     const serviceClient = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    const user = await requireDashboardUser(adminClient);
+    const user = await requireDashboardUser(serviceClient, authorization);
     const body = await request.json().catch(() => ({}));
     const action = String(body.action || '');
 
     if (action === 'save-settings') {
-      const settings = await saveSettings(serviceClient, user.id, body.settings || {});
-      return json({ settings });
+      return json(await saveSettings(serviceClient, user.id, body.settings || {}));
+    }
+
+    if (action === 'organizations') {
+      const settings = await loadSettings(serviceClient);
+      const organizations = await listOrganizations(await decryptStoredToken(settings));
+      const organizationId = resolveOrganizationId(organizations, settings.organization_id);
+      const saved = organizationId !== settings.organization_id
+        ? await updateSettingsStatus(serviceClient, {
+            organization_id: organizationId,
+            connection_status: organizationId ? 'configured' : 'selection-required',
+          })
+        : settings;
+      return json({ settings: safeSettings(saved), organizations });
     }
 
     if (action === 'test') {
       const settings = await loadSettings(serviceClient);
       const token = await decryptStoredToken(settings);
-      const events = await fetchEventbrite(settings.organization_id, token, 1);
+      const organizations = await listOrganizations(token);
+      const organizationId = resolveOrganizationId(organizations, settings.organization_id);
+      if (!organizationId) {
+        const saved = await updateSettingsStatus(serviceClient, { organization_id: null, connection_status: 'selection-required' });
+        return json({ settings: safeSettings(saved), organizations, result: { ok: false, count: 0, needs_selection: true } });
+      }
+      const events = await fetchEventbrite(organizationId, token, 1);
       const saved = await updateSettingsStatus(serviceClient, {
+        organization_id: organizationId,
         connection_status: 'verified',
         last_test_at: new Date().toISOString(),
         last_sync_status: 'Connection verified',
       });
-      return json({ settings: safeSettings(saved), result: { ok: true, count: events.length } });
+      return json({ settings: safeSettings(saved), organizations, result: { ok: true, count: events.length } });
     }
 
     if (action === 'sync') {
@@ -123,8 +138,10 @@ function requireEnv(name: string) {
   return value;
 }
 
-async function requireDashboardUser(client: SupabaseClient) {
-  const { data: authData, error: authError } = await client.auth.getUser();
+async function requireDashboardUser(client: SupabaseClient, authorization: string) {
+  const token = authorization.match(/^Bearer\s+(.+)$/i)?.[1];
+  if (!token) throw new Error('Dashboard sign-in required.');
+  const { data: authData, error: authError } = await client.auth.getUser(token);
   if (authError || !authData.user) throw new Error('Dashboard sign-in required.');
 
   const { data: profile, error: profileError } = await client
@@ -153,9 +170,12 @@ async function saveSettings(client: SupabaseClient, userId: string, payload: Rec
   const existing = await loadSettings(client);
   const privateToken = String(payload.private_token || '').trim();
   const removeToken = Boolean(payload.remove_token);
-  const organizationId = String(payload.organization_id || '').trim();
-
-  if (!organizationId) throw new Error('Eventbrite organisation ID is required.');
+  const token = removeToken ? null : privateToken || (existing.private_token_encrypted ? await decryptStoredToken(existing) : null);
+  const organizations = token ? await listOrganizations(token) : [];
+  const requestedOrganizationId = typeof payload.organization_id === 'string'
+    ? payload.organization_id.trim()
+    : existing.organization_id;
+  const organizationId = token ? resolveOrganizationId(organizations, requestedOrganizationId) : null;
 
   const update: Record<string, unknown> = {
     id: 1,
@@ -166,20 +186,18 @@ async function saveSettings(client: SupabaseClient, userId: string, payload: Rec
     show_uncategorized: payload.show_uncategorized !== false,
     updated_by: userId,
     updated_at: new Date().toISOString(),
-    connection_status: existing.private_token_encrypted || privateToken ? existing.connection_status : 'unverified',
+    connection_status: !token ? 'unverified' : organizationId ? 'configured' : 'selection-required',
   };
 
   if (removeToken) {
     update.private_token_encrypted = null;
-    update.connection_status = 'unverified';
   } else if (privateToken) {
     update.private_token_encrypted = await encryptText(privateToken);
-    update.connection_status = 'configured';
   }
 
   const { data, error } = await client.from('eventbrite_settings').upsert(update, { onConflict: 'id' }).select('*').single();
   if (error) throw new Error(error.message);
-  return safeSettings(data as EventbriteSettingsRow);
+  return { settings: safeSettings(data as EventbriteSettingsRow), organizations };
 }
 
 async function updateSettingsStatus(client: SupabaseClient, patch: Record<string, unknown>) {
@@ -196,6 +214,9 @@ async function updateSettingsStatus(client: SupabaseClient, patch: Record<string
 async function syncEvents(client: SupabaseClient) {
   const settings = await loadSettings(client);
   const token = await decryptStoredToken(settings);
+  const organizations = await listOrganizations(token);
+  const organizationId = resolveOrganizationId(organizations, settings.organization_id);
+  if (!organizationId) throw new Error('Select an Eventbrite organisation in connection settings before syncing.');
   const jobId = crypto.randomUUID();
   const startedAt = new Date().toISOString();
 
@@ -208,7 +229,7 @@ async function syncEvents(client: SupabaseClient) {
   });
 
   try {
-    const eventbriteEvents = await fetchEventbrite(settings.organization_id, token);
+    const eventbriteEvents = await fetchEventbrite(organizationId, token);
     const ids = eventbriteEvents.map((event) => event.id);
     const existingIds = await loadExistingEventbriteIds(client, ids);
     const hiddenStates = await loadExistingHiddenStates(client, ids);
@@ -236,6 +257,7 @@ async function syncEvents(client: SupabaseClient) {
     }).eq('id', jobId);
 
     const saved = await updateSettingsStatus(client, {
+      organization_id: organizationId,
       connection_status: 'verified',
       last_full_sync_at: finishedAt,
       last_sync_status: message,
@@ -267,14 +289,49 @@ async function syncEvents(client: SupabaseClient) {
   }
 }
 
-async function fetchEventbrite(organizationId: string | null, token: string, limitPages = 10): Promise<EventbriteEvent[]> {
-  if (!organizationId) throw new Error('Eventbrite organisation ID is required.');
+async function listOrganizations(token: string): Promise<EventbriteOrganization[]> {
+  const organizations: EventbriteOrganization[] = [];
+  let continuation = '';
 
+  for (let page = 0; page < 20; page += 1) {
+    const url = new URL('https://www.eventbriteapi.com/v3/users/me/organizations/');
+    if (continuation) url.searchParams.set('continuation', continuation);
+
+    const response = await fetch(url, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(`Eventbrite API error: ${payload?.error_description || payload?.error || response.statusText}`);
+    }
+    if (!Array.isArray(payload.organizations)) throw new Error('Eventbrite returned an unexpected organizations response.');
+
+    for (const organization of payload.organizations) {
+      if (organization?.id) {
+        organizations.push({ id: String(organization.id), name: String(organization.name || 'Unnamed organisation') });
+      }
+    }
+
+    if (!payload.pagination?.has_more_items) {
+      if (!organizations.length) throw new Error('This Eventbrite token has no organisations. Check the token account permissions.');
+      return organizations;
+    }
+    if (!payload.pagination.continuation) throw new Error('Eventbrite did not provide the next organizations page.');
+    continuation = payload.pagination.continuation;
+  }
+
+  throw new Error('Too many Eventbrite organisations to load.');
+}
+
+function resolveOrganizationId(organizations: EventbriteOrganization[], requestedId: string | null) {
+  if (requestedId && organizations.some((organization) => organization.id === requestedId)) return requestedId;
+  return organizations.length === 1 ? organizations[0].id : null;
+}
+
+async function fetchEventbrite(organizationId: string, token: string, limitPages = 10): Promise<EventbriteEvent[]> {
   const events: EventbriteEvent[] = [];
   let continuation = '';
 
   for (let page = 0; page < limitPages; page += 1) {
-    const url = new URL(`https://www.eventbriteapi.com/v3/organizations/${organizationId}/events/`);
+    const url = new URL(`https://www.eventbriteapi.com/v3/organizations/${encodeURIComponent(organizationId)}/events/`);
     url.searchParams.set('status', 'live,started');
     url.searchParams.set('order_by', 'start_asc');
     url.searchParams.set('expand', 'venue,ticket_availability,category,subcategory,format,logo');

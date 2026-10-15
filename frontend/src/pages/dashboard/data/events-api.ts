@@ -1,5 +1,10 @@
 import { requireSupabase, supabaseError } from '@/lib/supabase';
 
+export interface EventbriteOrganization {
+  id: string;
+  name: string;
+}
+
 export interface DashboardEventbriteSettings {
   organization_id: string | null;
   public_backend_url: string | null;
@@ -132,10 +137,18 @@ export async function getDashboardEvents(q = ''): Promise<DashboardEventsPayload
 }
 
 export function saveEventbriteSettings(settings: Record<string, unknown>) {
-  return invokeEventbriteWorker<{ settings: DashboardEventbriteSettings }>('save-settings', { settings });
+  return invokeEventbriteWorker<{ settings: DashboardEventbriteSettings; organizations: EventbriteOrganization[] }>('save-settings', { settings });
 }
 
-export function testEventbriteConnection(): Promise<{ result: { ok: boolean; count: number }; settings: DashboardEventbriteSettings }> {
+export function listEventbriteOrganizations() {
+  return invokeEventbriteWorker<{ settings: DashboardEventbriteSettings; organizations: EventbriteOrganization[] }>('organizations');
+}
+
+export function testEventbriteConnection(): Promise<{
+  result: { ok: boolean; count: number; needs_selection?: boolean };
+  settings: DashboardEventbriteSettings;
+  organizations: EventbriteOrganization[];
+}> {
   return invokeEventbriteWorker('test');
 }
 
@@ -191,7 +204,14 @@ async function invokeEventbriteWorker<T>(action: string, body: Record<string, un
     headers: { Authorization: `Bearer ${sessionData.session.access_token}` },
   });
 
-  if (error) throw new Error(supabaseError(error, 'Eventbrite worker failed. Make sure the eventbrite-sync Supabase function is deployed.'));
+  if (error) {
+    const response = error.context;
+    if (response instanceof Response) {
+      const details = await response.json().catch(() => null) as WorkerErrorResponse | null;
+      if (details?.error) throw new Error(details.error);
+    }
+    throw new Error(supabaseError(error, 'Eventbrite worker failed. Make sure the eventbrite-sync Supabase function is deployed.'));
+  }
   if (data?.error) throw new Error(data.error);
   if (!data) throw new Error('Eventbrite worker returned an empty response.');
 
