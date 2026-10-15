@@ -30,6 +30,9 @@ const DashboardLeads = lazy(() => import('../pages/dashboard/leads/page'));
 const DashboardContent = lazy(() => import('../pages/dashboard/content/page'));
 const DashboardAssistant = lazy(() => import('../pages/dashboard/assistant/page'));
 const DashboardSiteAccess = lazy(() => import('../pages/dashboard/site-access/page'));
+const DashboardUsers = lazy(() => import('../pages/dashboard/users/page'));
+const DashboardSetPassword = lazy(() => import('../pages/dashboard/set-password/page'));
+const DashboardAdminOnly = lazy(() => import('../pages/dashboard/components/AdminOnly'));
 
 const routes: RouteObject[] = [
   {
@@ -100,6 +103,10 @@ const routes: RouteObject[] = [
     element: <DashboardLogin />,
   },
   {
+    path: '/dashboard/set-password',
+    element: <Suspense fallback={<DashboardFallback />}><DashboardSetPassword /></Suspense>,
+  },
+  {
     path: '/dashboard',
     element: (
       <Suspense fallback={<DashboardFallback />}>
@@ -116,16 +123,16 @@ const routes: RouteObject[] = [
         element: <DashboardLeads />,
       },
       {
-        path: 'assistant',
-        element: <DashboardAssistant />,
-      },
-      {
-        path: 'site-access',
-        element: <DashboardSiteAccess />,
-      },
-      {
         path: 'content/:resource',
         element: <DashboardContent />,
+      },
+      {
+        element: <DashboardAdminOnly />,
+        children: [
+          { path: 'users', element: <DashboardUsers /> },
+          { path: 'assistant', element: <DashboardAssistant /> },
+          { path: 'site-access', element: <DashboardSiteAccess /> },
+        ],
       },
     ],
   },

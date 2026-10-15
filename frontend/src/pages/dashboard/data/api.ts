@@ -5,7 +5,7 @@ export interface DashboardUser {
   email: string;
   username: string | null;
   name: string;
-  role: string;
+  role: 'admin' | 'editor';
 }
 
 export interface DashboardLead {
@@ -46,7 +46,12 @@ export async function login(identifier: string, password: string) {
   if (error) throw new Error(supabaseError(error, 'Could not sign in.'));
   if (!data.user) throw new Error('Could not sign in.');
 
-  return getCurrentUser();
+  try {
+    return await getCurrentUser();
+  } catch (profileError) {
+    await client.auth.signOut();
+    throw profileError;
+  }
 }
 
 export async function getCurrentUser() {
@@ -61,15 +66,16 @@ export async function getCurrentUser() {
     .maybeSingle();
 
   if (profileError) throw new Error(supabaseError(profileError, 'Could not load dashboard user.'));
-  if (profile && profile.is_active === false) throw new Error('Dashboard user is inactive.');
+  if (!profile || !profile.is_active || !['admin', 'editor'].includes(profile.role)) {
+    throw new Error('This account does not have dashboard access.');
+  }
 
-  const metadata = data.user.user_metadata || {};
   const user: DashboardUser = {
     id: data.user.id,
-    email: profile?.email || data.user.email || '',
-    username: profile?.username || null,
-    name: profile?.name || String(metadata.name || data.user.email || 'Dashboard user'),
-    role: profile?.role || 'admin',
+    email: profile.email,
+    username: profile.username,
+    name: profile.name,
+    role: profile.role as DashboardUser['role'],
   };
 
   return { user };

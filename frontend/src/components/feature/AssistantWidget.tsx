@@ -30,7 +30,7 @@ export default function AssistantWidget() {
     void (async () => {
       try {
         const { data } = await requireSupabase()
-          .from('assistant_settings')
+          .from('public_assistant_settings')
           .select('assistant_name,welcome_message,fallback_message,is_enabled')
           .eq('id', 1)
           .maybeSingle();

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { useParams } from 'react-router-dom';
+import { Navigate, useOutletContext, useParams } from 'react-router-dom';
+import type { DashboardUser } from '../data/api';
 import DashboardEvents from '../events/page';
 import {
   cmsResourceOptions,
@@ -33,6 +34,10 @@ const dateFields = new Set(['published_at', 'starts_at', 'ends_at']);
 export default function DashboardContent() {
   const params = useParams();
   const resource = params.resource || 'articles';
+  const user = useOutletContext<DashboardUser>();
+  if (user.role !== 'admin' && ['events', 'settings'].includes(resource)) {
+    return <Navigate to="/dashboard" replace />;
+  }
   return resource === 'events' ? <DashboardEvents /> : <GenericDashboardContent resource={resource} />;
 }
 

@@ -8,6 +8,7 @@ const navItems = [
   { label: 'Leads', to: '/dashboard/leads', icon: 'ri-inbox-line' },
   { label: 'Smart Assistant', to: '/dashboard/assistant', icon: 'ri-sparkling-2-line' },
   { label: 'Maintenance', to: '/dashboard/site-access', icon: 'ri-lock-password-line' },
+  { label: 'Users', to: '/dashboard/users', icon: 'ri-team-line' },
 ];
 
 export default function DashboardLayout() {
@@ -45,6 +46,8 @@ export default function DashboardLayout() {
     );
   }
 
+  if (!user) return null;
+
   return (
     <div className="min-h-screen bg-background-100 text-foreground-900">
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 border-r border-background-300 bg-background-50 px-5 py-6 shadow-md transition-transform lg:translate-x-0 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -62,7 +65,7 @@ export default function DashboardLayout() {
         </div>
 
         <nav className="mt-8 max-h-[calc(100vh-13rem)] space-y-1 overflow-y-auto pr-1" aria-label="Dashboard">
-          {navItems.map((item) => (
+          {navItems.filter((item) => user.role === 'admin' || !['/dashboard/assistant', '/dashboard/site-access', '/dashboard/users'].includes(item.to)).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -81,7 +84,7 @@ export default function DashboardLayout() {
 
           <div className="pt-5">
             <div className="space-y-1">
-              {cmsResourceOptions.map((item) => (
+              {cmsResourceOptions.filter((item) => user.role === 'admin' || !['events', 'settings'].includes(item.id)).map((item) => (
                 <NavLink
                   key={item.id}
                   to={`/dashboard/content/${item.id}`}
@@ -103,7 +106,11 @@ export default function DashboardLayout() {
         <div className="absolute bottom-6 left-5 right-5 rounded-md border border-background-300 bg-background-100 p-4">
           <p className="text-sm font-semibold text-foreground-900">{user?.name}</p>
           <p className="mt-1 break-all text-xs text-foreground-500">{user?.email}</p>
-          <button type="button" onClick={handleLogout} className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary-800 hover:text-primary-900">
+          <p className="mt-1 text-xs font-semibold text-accent-700">{user.role === 'admin' ? 'Administrator' : 'Editor'}</p>
+          <NavLink to="/dashboard/set-password" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary-800 hover:text-primary-900">
+            <i className="ri-key-line" aria-hidden="true" />Change password
+          </NavLink>
+          <button type="button" onClick={handleLogout} className="mt-2 flex items-center gap-2 text-sm font-semibold text-primary-800 hover:text-primary-900">
             <i className="ri-logout-box-line" />
             Sign out
           </button>
@@ -127,7 +134,7 @@ export default function DashboardLayout() {
         </header>
 
         <main className="px-5 py-8 md:px-8 lg:px-10">
-          <Outlet />
+          <Outlet context={user} />
         </main>
       </div>
     </div>

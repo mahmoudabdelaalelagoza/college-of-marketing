@@ -149,7 +149,7 @@ async function requireDashboardUser(client: SupabaseClient, authorization: strin
     .select('id')
     .eq('id', authData.user.id)
     .eq('is_active', true)
-    .in('role', ['admin', 'editor'])
+    .eq('role', 'admin')
     .maybeSingle();
 
   if (profileError || !profile) throw new Error('Dashboard admin access required.');

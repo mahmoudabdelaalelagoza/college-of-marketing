@@ -426,19 +426,30 @@ on conflict (id) do nothing;
 
 create or replace function is_dashboard_admin()
 returns boolean
-language sql
-security definer
-set search_path = public
+language sql stable security definer
+set search_path = ''
 as $$
   select exists (
-    select 1
-    from dashboard_profiles
-    where id = auth.uid()
-      and is_active = true
-      and role in ('admin', 'editor')
+    select 1 from public.dashboard_profiles
+    where id = auth.uid() and is_active and role = 'admin'
   );
 $$;
 
+create or replace function is_dashboard_staff()
+returns boolean
+language sql stable security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.dashboard_profiles
+    where id = auth.uid() and is_active and role in ('admin', 'editor')
+  );
+$$;
+
+create or replace view public_assistant_settings as
+select id, assistant_name, welcome_message, fallback_message, is_enabled
+from assistant_settings
+where is_enabled = true;
 create or replace view public_site_access_settings as
 select id, maintenance_enabled, title, message, updated_at, protected_paths
 from site_access_settings
@@ -506,8 +517,12 @@ begin
 end;
 $$;
 
+grant select on public_assistant_settings to anon, authenticated;
 grant select on public_site_access_settings to anon, authenticated;
-grant execute on function is_dashboard_admin() to anon, authenticated;
+revoke execute on function is_dashboard_admin() from public, anon;
+revoke execute on function is_dashboard_staff() from public, anon;
+grant execute on function is_dashboard_admin() to authenticated;
+grant execute on function is_dashboard_staff() to authenticated;
 grant execute on function verify_site_preview_pin(text) to anon, authenticated;
 grant execute on function set_site_preview_pin(text) to authenticated;
 grant execute on function clear_site_preview_pin() to authenticated;
@@ -524,6 +539,7 @@ alter table short_courses enable row level security;
 alter table people_profiles enable row level security;
 alter table partner_logos enable row level security;
 alter table page_content_sections enable row level security;
+alter table page_content_versions enable row level security;
 alter table knowledge_sources enable row level security;
 alter table site_settings enable row level security;
 alter table eventbrite_settings enable row level security;
@@ -535,33 +551,33 @@ alter table site_access_settings enable row level security;
 
 create policy "dashboard profiles read own" on dashboard_profiles
   for select to authenticated using (id = auth.uid() and is_active = true);
-create policy "dashboard profiles admin manage" on dashboard_profiles
-  for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
+create policy "dashboard profiles admin read" on dashboard_profiles
+  for select to authenticated using (is_dashboard_admin());
 
 create policy "public lead insert" on lead_submissions
   for insert to anon, authenticated with check (true);
 create policy "dashboard lead manage" on lead_submissions
-  for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
+  for all to authenticated using (is_dashboard_staff()) with check (is_dashboard_staff());
 
 create policy "public newsletter insert" on newsletter_subscriptions
   for insert to anon, authenticated with check (true);
 create policy "dashboard newsletter read" on newsletter_subscriptions
-  for select to authenticated using (is_dashboard_admin());
+  for select to authenticated using (is_dashboard_staff());
 
 create policy "public articles read" on articles
   for select to anon, authenticated using (is_published = true);
 create policy "dashboard articles manage" on articles
-  for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
+  for all to authenticated using (is_dashboard_staff()) with check (is_dashboard_staff());
 
 create policy "public case studies read" on case_studies
   for select to anon, authenticated using (is_published = true);
 create policy "dashboard case studies manage" on case_studies
-  for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
+  for all to authenticated using (is_dashboard_staff()) with check (is_dashboard_staff());
 
 create policy "public testimonials read" on testimonials
   for select to anon, authenticated using (status = 'approved' and is_featured = true);
 create policy "dashboard testimonials manage" on testimonials
-  for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
+  for all to authenticated using (is_dashboard_staff()) with check (is_dashboard_staff());
 
 create policy "public events read" on events
   for select to anon, authenticated using (is_active = true and is_hidden = false);
@@ -571,30 +587,33 @@ create policy "dashboard events manage" on events
 create policy "public short courses read" on short_courses
   for select to anon, authenticated using (is_active = true);
 create policy "dashboard short courses manage" on short_courses
-  for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
+  for all to authenticated using (is_dashboard_staff()) with check (is_dashboard_staff());
 
 create policy "public people read" on people_profiles
   for select to anon, authenticated using (is_active = true);
 create policy "dashboard people manage" on people_profiles
-  for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
+  for all to authenticated using (is_dashboard_staff()) with check (is_dashboard_staff());
 
 create policy "public partners read" on partner_logos
   for select to anon, authenticated using (is_active = true);
 create policy "dashboard partners manage" on partner_logos
-  for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
+  for all to authenticated using (is_dashboard_staff()) with check (is_dashboard_staff());
 
 create policy "public media read" on media_assets
   for select to anon, authenticated using (true);
 create policy "dashboard media manage" on media_assets
-  for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
+  for all to authenticated using (is_dashboard_staff()) with check (is_dashboard_staff());
 
 create policy "public page sections read" on page_content_sections
   for select to anon, authenticated using (is_visible = true and published_value is not null);
 create policy "dashboard page sections manage" on page_content_sections
-  for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
+  for all to authenticated using (is_dashboard_staff()) with check (is_dashboard_staff());
+
+create policy "dashboard page versions manage" on page_content_versions
+  for all to authenticated using (is_dashboard_staff()) with check (is_dashboard_staff());
 
 create policy "dashboard knowledge manage" on knowledge_sources
-  for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
+  for all to authenticated using (is_dashboard_staff()) with check (is_dashboard_staff());
 
 create policy "public settings read" on site_settings
   for select to anon, authenticated using (is_public = true);
@@ -608,8 +627,6 @@ create policy "dashboard event classifications manage" on event_classifications
 create policy "dashboard eventbrite jobs manage" on eventbrite_sync_jobs
   for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
 
-create policy "public assistant settings read" on assistant_settings
-  for select to anon, authenticated using (is_enabled = true);
 create policy "dashboard assistant settings manage" on assistant_settings
   for all to authenticated using (is_dashboard_admin()) with check (is_dashboard_admin());
 create policy "dashboard assistant logs manage" on assistant_chat_logs

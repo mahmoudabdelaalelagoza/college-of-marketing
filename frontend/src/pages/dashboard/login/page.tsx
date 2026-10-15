@@ -2,11 +2,14 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/base/Button';
 import { login } from '../data/api';
+import { requireSupabase, supabaseError } from '@/lib/supabase';
 
 export default function DashboardLogin() {
   const navigate = useNavigate();
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
   const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [notice, setNotice] = useState('');
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -16,6 +19,7 @@ export default function DashboardLogin() {
 
     setStatus('submitting');
     setError('');
+    setNotice('');
 
     try {
       await login(identifier, password);
@@ -23,6 +27,21 @@ export default function DashboardLogin() {
     } catch (err) {
       setStatus('error');
       setError(err instanceof Error ? err.message : 'Could not sign in.');
+    }
+  };
+
+  const resetPassword = async () => {
+    if (!email.trim()) return setError('Enter your email address first.');
+    setError('');
+    setNotice('');
+    try {
+      const { error: resetError } = await requireSupabase().auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/dashboard/set-password`,
+      });
+      if (resetError) throw new Error(supabaseError(resetError, 'Could not send reset email.'));
+      setNotice('If this account exists, a password reset link has been sent.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send reset email.');
     }
   };
 
@@ -61,6 +80,8 @@ export default function DashboardLogin() {
                 <input
                   id="identifier"
                   name="identifier"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   type="text"
                   autoComplete="username"
                   required
@@ -81,7 +102,8 @@ export default function DashboardLogin() {
                 />
               </div>
 
-              {status === 'error' && (
+              {notice && <p role="status" className="rounded-md bg-secondary-50 px-4 py-3 text-sm text-secondary-900">{notice}</p>}
+              {error && (
                 <p role="alert" className="rounded-md bg-primary-100 px-4 py-3 text-sm text-primary-800">
                   {error}
                 </p>
@@ -91,6 +113,7 @@ export default function DashboardLogin() {
                 {status === 'submitting' ? 'Signing in...' : 'Sign in'}
               </Button>
             </form>
+            <button type="button" onClick={() => void resetPassword()} className="mt-4 text-sm font-semibold text-primary-800 hover:text-primary-900">Forgot password?</button>
           </div>
         </div>
       </section>
